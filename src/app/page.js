@@ -1,103 +1,140 @@
 import Image from "next/image";
+import Navbar from "../components/Navbar";
+import FeaturedProperties from "../components/FeaturedProperties";
+import WhyChooseUs from "../components/WhyChooseUs";
+import CallToAction from "../components/CallToAction";
+import Footer from "../components/Footer";
+
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen">
+      <Navbar />
+      
+      {/* Hero Section */}
+      <div className="relative h-screen overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/apartmentimg1.png"
+            alt="Modern Architecture"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/30"></div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Content Overlay */}
+        <div className="relative z-10 px-4 md:px-6 pt-16 h-full">
+          <div className="max-w-7xl mx-auto h-full flex flex-col">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pt-4 md:pt-8">
+              {/* Left Content */}
+              <div className="space-y-6">
+                <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white leading-tight">
+                  Beautiful And<br />
+                  <span className="text-purple-light">Stunning</span> Properties in<br />
+                  Nigeria
+                </h1>
+              </div>
+
+              {/* Right Content */}
+              <div className="lg:mt-16 flex flex-col justify-between h-full">
+                <div>
+                  <p className="text-white/90 text-sm leading-relaxed mb-4 md:mb-8 max-w-md">
+                    With expert guidance and a deep understanding of Nigeria's real estate
+                    landscape, we're here to help turn the key to a home that's perfect for you.
+                  </p>
+                </div>
+                
+                {/* Copyright text */}
+                <div className="text-right hidden lg:block">
+                  <p className="text-xs text-white/70">
+                    ©2024 SAPHIRE APARTMENTS ALL<br />
+                    RIGHT RESERVED
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Search Form */}
+            <div className="pb-4 md:pb-8">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-xl border border-purple-lighter">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 items-end">
+                  {/* Looking For */}
+                  <div>
+                    <label className="block text-sm font-medium text-purple-primary mb-2 md:mb-3">
+                      Looking For
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="What to look for ?"
+                      className="w-full px-0 py-2 md:py-3 border-0 border-b-2 border-purple-lighter focus:border-purple-primary focus:outline-none text-sm bg-transparent placeholder-gray-400"
+                    />
+                  </div>
+
+                  {/* Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-purple-primary mb-2 md:mb-3">
+                      Type
+                    </label>
+                    <select className="w-full px-0 py-2 md:py-3 border-0 border-b-2 border-purple-lighter focus:border-purple-primary focus:outline-none text-sm text-gray-600 bg-transparent appearance-none cursor-pointer">
+                      <option>Property Type</option>
+                      <option>Apartment</option>
+                      <option>House</option>
+                      <option>Villa</option>
+                      <option>Penthouse</option>
+                    </select>
+                  </div>
+
+                  {/* Price */}
+                  <div>
+                    <label className="block text-sm font-medium text-purple-primary mb-2 md:mb-3">
+                      Price
+                    </label>
+                    <select className="w-full px-0 py-2 md:py-3 border-0 border-b-2 border-purple-lighter focus:border-purple-primary focus:outline-none text-sm text-gray-600 bg-transparent appearance-none cursor-pointer">
+                      <option>Price</option>
+                      <option>Under $100k</option>
+                      <option>$100k - $300k</option>
+                      <option>$300k - $500k</option>
+                      <option>$500k - $1M</option>
+                      <option>$1M+</option>
+                    </select>
+                  </div>
+
+                  {/* Location & Search */}
+                  <div>
+                    <label className="block text-sm font-medium text-purple-primary mb-2 md:mb-3">
+                      Location
+                    </label>
+                    <div className="flex flex-col md:flex-row items-end space-y-2 md:space-y-0 md:space-x-4">
+                      <select className="w-full md:flex-1 px-0 py-2 md:py-3 border-0 border-b-2 border-purple-lighter focus:border-purple-primary focus:outline-none text-sm text-gray-600 bg-transparent appearance-none cursor-pointer">
+                        <option>All Cities</option>
+                        <option>Lagos</option>
+                        <option>Abuja</option>
+                        <option>Port Harcourt</option>
+                        <option>Kano</option>
+                        <option>Ibadan</option>
+                      </select>
+                      <button className="w-full md:w-auto bg-purple-gradient text-white px-6 md:px-8 py-2 md:py-3 rounded-lg flex items-center justify-center space-x-2 hover:bg-purple-secondary transition-colors duration-200 font-medium shadow-lg">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span className="text-sm">Search</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <FeaturedProperties />
+      <WhyChooseUs />
+      <CallToAction />
+      <Footer />
     </div>
   );
 }

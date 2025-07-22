@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --purple-primary: rgb(42, 39, 106);
+  --purple-secondary: rgb(73, 75, 158);
+  --purple-light: rgb(139, 142, 199);
+  --purple-lighter: rgb(230, 231, 248);
 }
 
 @theme inline {
@@ -10,6 +14,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-purple-primary: var(--purple-primary);
+  --color-purple-secondary: var(--purple-secondary);
+  --color-purple-light: var(--purple-light);
+  --color-purple-lighter: var(--purple-lighter);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +31,118 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Purple theme utilities */
+.bg-purple-primary {
+  background-color: var(--purple-primary);
+}
+
+.bg-purple-secondary {
+  background-color: var(--purple-secondary);
+}
+
+.bg-purple-light {
+  background-color: var(--purple-light);
+}
+
+.bg-purple-lighter {
+  background-color: var(--purple-lighter);
+}
+
+.text-purple-primary {
+  color: var(--purple-primary);
+}
+
+.text-purple-secondary {
+  color: var(--purple-secondary);
+}
+
+.text-purple-light {
+  color: var(--purple-light);
+}
+
+.border-purple-primary {
+  border-color: var(--purple-primary);
+}
+
+.border-purple-secondary {
+  border-color: var(--purple-secondary);
+}
+
+.border-purple-lighter {
+  border-color: var(--purple-lighter);
+}
+
+.border-purple-light {
+  border-color: var(--purple-light);
+}
+
+/* Purple gradient backgrounds */
+.bg-purple-gradient {
+  background: linear-gradient(135deg, var(--purple-primary) 0%, var(--purple-secondary) 100%);
+}
+
+.bg-purple-gradient-light {
+  background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple-secondary) 100%);
+}
+
+/* Mobile text truncation utility */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Ensure mobile viewport */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Custom z-index utilities */
+.z-5 {
+  z-index: 5;
+}
+
+/* Hide scrollbar for horizontal scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+/* Mobile modal optimizations */
+@media (max-width: 768px) {
+  .modal-image {
+    max-height: calc(100vh - 200px);
+    max-height: calc(100dvh - 200px); /* Dynamic viewport height */
+  }
+  
+  /* Ensure full height on mobile browsers */
+  .modal-container {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+}
+
+/* Prevent zoom on double tap for modal images on iOS */
+.modal-container {
+  touch-action: manipulation;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
