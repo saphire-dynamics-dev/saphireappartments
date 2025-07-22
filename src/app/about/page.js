@@ -47,12 +47,12 @@ export default function About() {
               </h2>
               <p className="text-gray-600 text-lg leading-relaxed mb-6">
                 Founded in 2023, Saphire Apartments began with a simple mission: to help people 
-                find their perfect home in Nigeria's rapidly growing real estate market. What started 
+                find their perfect home in Nigeria&apos;s rapidly growing real estate market. What started 
                 as a small team of passionate real estate professionals has grown into one of 
-                Nigeria's most trusted property companies.
+                Nigeria&apos;s most trusted property companies.
               </p>
               <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                We believe that finding a home is more than just a transaction—it's about 
+                We believe that finding a home is more than just a transaction—it&apos;s about 
                 discovering a place where dreams come to life, families grow, and memories 
                 are made. Our commitment to excellence and personalized service has helped 
                 hundreds of families across Lagos, Abuja, and other major Nigerian cities find their ideal properties.
@@ -114,9 +114,9 @@ export default function About() {
               <div className="text-4xl mb-6">🌟</div>
               <h3 className="text-2xl font-semibold text-purple-primary mb-4">Our Vision</h3>
               <p className="text-gray-600 leading-relaxed">
-                To become Nigeria's leading real estate company, recognized for innovation, integrity, 
+                To become Nigeria&apos;s leading real estate company, recognized for innovation, integrity, 
                 and excellence in property services, while contributing to the growth and development 
-                of Nigeria's real estate sector.
+                of Nigeria&apos;s real estate sector.
               </p>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Facebook, Linkedin, Instagram } from "lucide-react";
 
 export default function Footer() {
@@ -40,9 +41,9 @@ export default function Footer() {
           <div>
             <h3 className="text-base md:text-lg font-semibold text-purple-primary mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="/" className="text-gray-600 hover:text-purple-primary transition-colors text-sm md:text-base">Home</a></li>
-              <li><a href="/properties" className="text-gray-600 hover:text-purple-primary transition-colors text-sm md:text-base">Properties</a></li>
-              <li><a href="/about" className="text-gray-600 hover:text-purple-primary transition-colors text-sm md:text-base">About Us</a></li>
+              <li><Link href="/" className="text-gray-600 hover:text-purple-primary transition-colors text-sm md:text-base">Home</Link></li>
+              <li><Link href="/properties" className="text-gray-600 hover:text-purple-primary transition-colors text-sm md:text-base">Properties</Link></li>
+              <li><Link href="/about" className="text-gray-600 hover:text-purple-primary transition-colors text-sm md:text-base">About Us</Link></li>
             </ul>
           </div>
 

@@ -42,8 +42,8 @@ export default function Home() {
               <div className="lg:mt-16 flex flex-col justify-between h-full">
                 <div>
                   <p className="text-white/90 text-sm leading-relaxed mb-4 md:mb-8 max-w-md">
-                    With expert guidance and a deep understanding of Nigeria's real estate
-                    landscape, we're here to help turn the key to a home that's perfect for you.
+                    With expert guidance and a deep understanding of Nigeria&apos;s real estate
+                    landscape, we&apos;re here to help turn the key to a home that&apos;s perfect for you.
                   </p>
                 </div>
                 

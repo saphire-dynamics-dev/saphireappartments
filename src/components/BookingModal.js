@@ -275,7 +275,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
               </button>
 
               <p className="text-xs text-gray-500 text-center mt-3">
-                By clicking "Send Booking Request", an agent will contact you to confirm availability and payment details.
+                By clicking &quot;Send Booking Request&quot;, an agent will contact you to confirm availability and payment details.
               </p>
             </form>
           </>

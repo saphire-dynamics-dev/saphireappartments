@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function Navbar() {
@@ -22,9 +23,9 @@ export default function Navbar() {
             <span className="text-lg md:text-xl font-semibold text-purple-primary">Saphire Apartments</span>
           </div>
           <div className="hidden md:flex items-center space-x-6 text-gray-600 text-sm">
-            <a href="/" className="text-purple-primary font-medium hover:text-purple-secondary transition-colors">Home</a>
-            <a href="/properties" className="hover:text-purple-primary transition-colors">Properties</a>
-            <a href="/about" className="hover:text-purple-primary transition-colors">About Us</a>
+            <Link href="/" className="text-purple-primary font-medium hover:text-purple-secondary transition-colors">Home</Link>
+            <Link href="/properties" className="hover:text-purple-primary transition-colors">Properties</Link>
+            <Link href="/about" className="hover:text-purple-primary transition-colors">About Us</Link>
           </div>
         </div>
         
@@ -54,9 +55,9 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-purple-lighter">
           <div className="px-4 py-2 space-y-1">
-            <a href="/" className="block py-2 text-purple-primary font-medium">Home</a>
-            <a href="/properties" className="block py-2 text-gray-600 hover:text-purple-primary">Properties</a>
-            <a href="/about" className="block py-2 text-gray-600 hover:text-purple-primary">About Us</a>
+            <Link href="/" className="block py-2 text-purple-primary font-medium">Home</Link>
+            <Link href="/properties" className="block py-2 text-gray-600 hover:text-purple-primary">Properties</Link>
+            <Link href="/about" className="block py-2 text-gray-600 hover:text-purple-primary">About Us</Link>
             <button className="block w-full text-left py-2 text-gray-600 hover:text-purple-primary">Contact Us</button>
             <button className="block w-full bg-purple-gradient text-white py-2 px-4 rounded-lg text-sm mt-2 hover:bg-purple-secondary transition-colors">
               Book a Call

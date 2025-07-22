@@ -33,7 +33,7 @@ export default function PropertyDetails({ params }) {
         <div className="pt-20 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-purple-primary mb-4">Property Not Found</h1>
-            <p className="text-gray-600 mb-8">The property you're looking for doesn't exist or has been removed.</p>
+            <p className="text-gray-600 mb-8">The property you&apos;re looking for doesn&apos;t exist or has been removed.</p>
             <Link href="/properties" className="bg-purple-gradient text-white px-6 py-3 rounded-lg hover:bg-purple-secondary transition-colors">
               Back to Properties
             </Link>
