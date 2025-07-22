@@ -143,6 +143,18 @@ export default function ScheduleViewingModal({ isOpen, onClose, property }) {
                   <span className="text-purple-secondary">💰</span>
                   <span className="text-gray-700">{property.price}</span>
                 </div>
+                <div className="mt-3 pt-3 border-t border-purple-light">
+                  <div className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-yellow-600">👁️</span>
+                      <span className="text-yellow-800 font-medium">Viewing Fee:</span>
+                    </div>
+                    <span className="text-yellow-800 font-bold">₦2,000</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    *Viewing fee is refundable if you proceed with booking
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -283,6 +295,23 @@ export default function ScheduleViewingModal({ isOpen, onClose, property }) {
                   className="w-full px-4 py-3 border text-gray-700 border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none resize-none"
                   placeholder="Any specific requirements or questions about the viewing..."
                 />
+              </div>
+
+              {/* Terms and Submit */}
+              <div className="mb-6">
+                <label className="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    required
+                    className="mt-1 w-4 h-4 text-purple-primary border-gray-300 rounded focus:ring-purple-primary"
+                  />
+                  <span className="text-sm text-gray-600">
+                    I understand that a viewing fee of ₦2,000 applies and agree to the{" "}
+                    <a href="#" className="text-purple-primary hover:underline">
+                      Terms of Service
+                    </a>
+                  </span>
+                </label>
               </div>
 
               <button

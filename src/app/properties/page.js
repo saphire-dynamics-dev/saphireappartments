@@ -1,10 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import ScheduleViewingModal from "../../components/ScheduleViewingModal";
 import propertiesData from "../../data/properties.json";
 
 export default function Properties() {
+  const [viewingModalOpen, setViewingModalOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+
+  const handleScheduleViewing = (property) => {
+    setSelectedProperty(property);
+    setViewingModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -96,9 +108,15 @@ export default function Properties() {
                     <Link href={`/properties/${property.id}`} className="w-full bg-purple-gradient text-white py-2 px-4 rounded-lg hover:bg-purple-secondary transition-colors font-medium text-sm shadow-md text-center">
                       Book Now
                     </Link>
-                    <button className="w-full border-2 border-purple-primary text-purple-primary py-2 px-4 rounded-lg hover:bg-purple-primary hover:text-white transition-colors font-medium text-sm">
+                    <button 
+                      onClick={() => handleScheduleViewing(property)}
+                      className="w-full border-2 border-purple-primary text-purple-primary py-2 px-4 rounded-lg hover:bg-purple-primary hover:text-white transition-colors font-medium text-sm"
+                    >
                       Schedule Viewing
                     </button>
+                    <p className="text-xs text-gray-500 text-center mt-1">
+                      *Viewing fee: ₦2,000 (refundable)
+                    </p>
                   </div>
                 </div>
               </article>
@@ -106,6 +124,18 @@ export default function Properties() {
           </div>
         </div>
       </div>
+
+      {/* Schedule Viewing Modal */}
+      {selectedProperty && (
+        <ScheduleViewingModal
+          isOpen={viewingModalOpen}
+          onClose={() => {
+            setViewingModalOpen(false);
+            setSelectedProperty(null);
+          }}
+          property={selectedProperty}
+        />
+      )}
 
       <Footer />
     </div>

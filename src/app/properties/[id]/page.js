@@ -344,6 +344,11 @@ export default function PropertyDetails({ params }) {
                   >
                     Schedule Viewing
                   </button>
+                  <div className="text-center mt-2">
+                    <p className="text-xs text-gray-500">
+                      *Viewing fee: ₦2,000 (refundable with booking)
+                    </p>
+                  </div>
                 </div>
 
                 <div className="border-t pt-4">

@@ -503,6 +503,10 @@ export const sendViewingRequestEmail = async (viewingData) => {
                 hour12: true
               })}</span>
             </div>
+            <div class="detail-row">
+              <span class="detail-label">Viewing Fee:</span>
+              <span style="color: #dc3545; font-weight: 600;">₦2,000 (Refundable with booking)</span>
+            </div>
             ${viewingDetails.message ? `
             <div class="detail-row">
               <span class="detail-label">Message:</span>
@@ -511,28 +515,13 @@ export const sendViewingRequestEmail = async (viewingData) => {
             ` : ''}
           </div>
 
-          <div style="background-color: rgb(230, 231, 248); border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <h3 class="section-title">👤 Client Information</h3>
-            <div class="detail-row">
-              <span class="detail-label">Full Name:</span>
-              <span>${viewingDetails.firstName} ${viewingDetails.lastName}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Email:</span>
-              <span>${viewingDetails.email}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Phone:</span>
-              <span>${viewingDetails.phone}</span>
-            </div>
-          </div>
-
           <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 20px 0;">
             <h4 style="color: #856404; margin-top: 0;">📞 Action Required:</h4>
             <ul style="color: #856404; margin: 10px 0;">
               <li>Contact the client within 4 hours to confirm viewing appointment</li>
+              <li>Confirm payment of ₦2,000 viewing fee before viewing</li>
               <li>Verify the requested date and time availability</li>
-              <li>Send viewing confirmation with location details</li>
+              <li>Send viewing confirmation with location details and payment instructions</li>
               <li>Prepare property for presentation</li>
             </ul>
           </div>
@@ -634,6 +623,17 @@ export const sendViewingRequestEmail = async (viewingData) => {
               minute: '2-digit',
               hour12: true
             })}</p>
+            <p><strong>Viewing Fee:</strong> <span style="color: #dc3545; font-weight: 600;">₦2,000</span> (Refundable if you proceed with booking)</p>
+          </div>
+
+          <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <h3 style="color: rgb(42, 39, 106); margin-top: 0;">💳 Payment Information</h3>
+            <p style="margin-bottom: 10px;"><strong>Viewing Fee:</strong> ₦2,000</p>
+            <ul style="margin: 10px 0; color: #6c757d;">
+              <li>Payment is required to confirm your viewing appointment</li>
+              <li>Fee is fully refundable if you proceed with booking the property</li>
+              <li>Our agent will provide payment details when they contact you</li>
+            </ul>
           </div>
 
           <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
@@ -641,7 +641,8 @@ export const sendViewingRequestEmail = async (viewingData) => {
             <ul>
               <li>Our agent will contact you within 4 hours during business hours</li>
               <li>We'll confirm your preferred date and time or suggest alternatives</li>
-              <li>You'll receive detailed directions and contact information</li>
+              <li>Payment instructions for the ₦2,000 viewing fee will be provided</li>
+              <li>You'll receive detailed directions and contact information after payment</li>
               <li>We'll be ready to answer all your questions during the viewing</li>
             </ul>
           </div>
