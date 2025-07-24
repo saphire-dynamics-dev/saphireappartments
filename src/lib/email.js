@@ -235,116 +235,51 @@ export const sendBookingRequestEmail = async (bookingData) => {
     html: adminEmailHtml,
   };
 
-  // Email confirmation to guest
+  // Simple minimalistic email confirmation to guest
   const guestEmailHtml = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Booking Request Confirmation - Saphire Apartments</title>
-      <style>
-        body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          line-height: 1.6;
-          color: #333;
-          max-width: 600px;
-          margin: 0 auto;
-          padding: 20px;
-          background-color: #f8f9fa;
-        }
-        .email-container {
-          background: white;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-          background: linear-gradient(135deg, rgb(42, 39, 106) 0%, rgb(73, 75, 158) 100%);
-          color: white;
-          padding: 30px 20px;
-          text-align: center;
-        }
-        .content {
-          padding: 30px 20px;
-        }
-        .booking-summary {
-          background-color: rgb(230, 231, 248);
-          border-radius: 8px;
-          padding: 20px;
-          margin: 20px 0;
-        }
-        .contact-info {
-          background-color: #f8f9fa;
-          border-radius: 8px;
-          padding: 20px;
-          margin: 20px 0;
-        }
-        .footer {
-          background-color: #f8f9fa;
-          padding: 20px;
-          text-align: center;
-          color: #6c757d;
-          font-size: 14px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="email-container">
-        <div class="header">
-          <h1>🏠 Saphire Apartments</h1>
-          <p style="margin: 10px 0 0 0; opacity: 0.9;">Booking Request Confirmation</p>
-        </div>
-
-        <div class="content">
-          <h2 style="color: rgb(42, 39, 106);">Dear ${personalDetails.firstName},</h2>
-          
-          <p>Thank you for your booking request! We have received your information and our team will contact you shortly to confirm availability and finalize your reservation.</p>
-
-          <div class="booking-summary">
-            <h3 style="color: rgb(42, 39, 106); margin-top: 0;">📋 Your Booking Summary</h3>
-            <p><strong>Property:</strong> ${property.title}</p>
-            <p><strong>Location:</strong> ${property.location}</p>
-            <p><strong>Check-in:</strong> ${new Date(bookingDetails.checkInDate).toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}</p>
-            <p><strong>Check-out:</strong> ${new Date(bookingDetails.checkOutDate).toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}</p>
-            <p><strong>Guests:</strong> ${bookingDetails.guests}</p>
-          </div>
-
-          <div class="contact-info">
-            <h3 style="color: rgb(42, 39, 106); margin-top: 0;">📞 What Happens Next?</h3>
-            <ul>
-              <li>Our team will contact you within 2 hours during business hours</li>
-              <li>We'll confirm availability for your selected dates</li>
-              <li>Payment options and check-in instructions will be provided</li>
-              <li>You'll receive a final confirmation email once everything is set</li>
-            </ul>
-          </div>
-
-          <p>If you have any immediate questions or need to make changes to your request, please contact us:</p>
-          <p>📧 Email: info@saphireapartments.ng<br>
-          📱 Phone: +234 901 234 5678<br>
-          💬 WhatsApp: +234 901 234 5678</p>
-
-          <p>We look forward to hosting you at Saphire Apartments!</p>
-        </div>
-
-        <div class="footer">
-          <p>Best regards,<br><strong>The Saphire Apartments Team</strong></p>
-          <p>Your trusted partner for luxury shortlet accommodations in Abuja.</p>
-        </div>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333;">
+      <h2 style="color: #2a276a; margin-bottom: 20px;">Booking Request Received</h2>
+      
+      <p>Dear ${personalDetails.firstName},</p>
+      
+      <p>Thank you for your booking request. We have received your information and an agent will contact you shortly to confirm availability and finalize your reservation.</p>
+      
+      <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #2a276a; margin: 20px 0;">
+        <h3 style="margin-top: 0; color: #2a276a; font-size: 16px;">Booking Summary</h3>
+        <p style="margin: 5px 0;"><strong>Property:</strong> ${property.title}</p>
+        <p style="margin: 5px 0;"><strong>Location:</strong> ${property.location}</p>
+        <p style="margin: 5px 0;"><strong>Check-in:</strong> ${new Date(bookingDetails.checkInDate).toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}</p>
+        <p style="margin: 5px 0;"><strong>Check-out:</strong> ${new Date(bookingDetails.checkOutDate).toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}</p>
+        <p style="margin: 5px 0;"><strong>Guests:</strong> ${bookingDetails.guests}</p>
       </div>
-    </body>
-    </html>
+      
+      <p><strong>What happens next?</strong></p>
+      <ul>
+        <li>Our team will contact you within 2 hours during business hours</li>
+        <li>We'll confirm availability for your selected dates</li>
+        <li>Payment options and check-in instructions will be provided</li>
+      </ul>
+      
+      <p>If you have any immediate questions, please contact us at <a href="mailto:info@saphireapartments.ng" style="color: #2a276a;">info@saphireapartments.ng</a> or call +234 901 234 5678.</p>
+      
+      <p>Best regards,<br>
+      <strong>Saphire Apartments Team</strong></p>
+      
+      <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+      <p style="font-size: 12px; color: #666;">
+        This is an automated confirmation email. Please do not reply to this email.
+      </p>
+    </div>
   `;
 
   const guestMailOptions = {
