@@ -91,7 +91,7 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative h-screen overflow-hidden">
+      <div className="relative h-[80vh] md:h-screen overflow-hidden">
         {/* Background Images Carousel */}
         <div className="absolute inset-0">
           {backgroundImages.map((image, index) => (
@@ -113,23 +113,23 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/30"></div>
         </div>
 
-        {/* Navigation Arrows */}
+        {/* Navigation Arrows - Hidden on mobile, visible on desktop */}
         <button
           onClick={goToPrevious}
-          className="absolute left-4 md:left-8 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-2 md:p-3 transition-all duration-300 group"
+          className="absolute left-4 md:left-8 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-2 md:p-3 transition-all duration-300 group hidden md:block"
         >
           <ChevronLeft size={24} className="text-white group-hover:scale-110 transition-transform" />
         </button>
 
         <button
           onClick={goToNext}
-          className="absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-2 md:p-3 transition-all duration-300 group"
+          className="absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-2 md:p-3 transition-all duration-300 group hidden md:block"
         >
           <ChevronRight size={24} className="text-white group-hover:scale-110 transition-transform" />
         </button>
 
-        {/* Carousel Indicators */}
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20 hidden md:flex space-x-2">
+        {/* Carousel Indicators - Visible on mobile and desktop */}
+        <div className="absolute bottom-8 md:bottom-20 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
           {backgroundImages.map((_, index) => (
             <button
               key={index}

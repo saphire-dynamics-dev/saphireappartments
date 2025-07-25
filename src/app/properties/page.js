@@ -46,7 +46,7 @@ export default function Properties() {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative h-64 md:h-96 overflow-hidden">
+      <div className="relative h-[50vh] md:h-96 overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
