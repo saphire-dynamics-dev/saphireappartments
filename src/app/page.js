@@ -1,4 +1,9 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "../components/Navbar";
 import FeaturedProperties from "../components/FeaturedProperties";
 import WhyChooseUs from "../components/WhyChooseUs";
@@ -7,123 +12,188 @@ import Footer from "../components/Footer";
 
 
 export default function Home() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const [windowHeight, setWindowHeight] = useState(0);
+  
+  // Background images for the carousel
+  const backgroundImages = [
+    "/apartmentimg1.png",
+    "/apartmentimg2bed.png",
+    "/d14(1).jpeg",
+    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+  ];
+
+  // Auto-carousel effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % backgroundImages.length
+      );
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [backgroundImages.length]);
+
+  // Initialize window height and scroll effect
+  useEffect(() => {
+    // Set initial window height
+    setWindowHeight(window.innerHeight);
+
+    const handleScroll = () => setScrollY(window.scrollY);
+    const handleResize = () => setWindowHeight(window.innerHeight);
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // Calculate opacity based on scroll position
+  const getScrollOpacity = () => {
+    if (typeof window === 'undefined' || windowHeight === 0) return 1;
+    
+    const fadeStart = 0;
+    const fadeEnd = windowHeight * 0.6; // Fade out when scrolled 60% of viewport height
+    if (scrollY <= fadeStart) return 1;
+    if (scrollY >= fadeEnd) return 0;
+    return 1 - (scrollY - fadeStart) / (fadeEnd - fadeStart);
+  };
+
+  // Calculate transform based on scroll position
+  const getScrollTransform = () => {
+    if (typeof window === 'undefined' || windowHeight === 0) return 0;
+    
+    const transformStart = 0;
+    const transformEnd = windowHeight * 0.5;
+    if (scrollY <= transformStart) return 0;
+    if (scrollY >= transformEnd) return 50;
+    return (scrollY - transformStart) / (transformEnd - transformStart) * 50;
+  };
+
+  const goToPrevious = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === 0 ? backgroundImages.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentImageIndex((prevIndex) => 
+      (prevIndex + 1) % backgroundImages.length
+    );
+  };
+
   return (
     <div className="min-h-screen">
       <Navbar />
       
       {/* Hero Section */}
       <div className="relative h-screen overflow-hidden">
-        {/* Background Image */}
+        {/* Background Images Carousel */}
         <div className="absolute inset-0">
-          <Image
-            src="/apartmentimg1.png"
-            alt="Modern Architecture"
-            fill
-            className="object-cover object-center"
-            priority
-          />
+          {backgroundImages.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <Image
+                src={image}
+                alt={`Modern Architecture ${index + 1}`}
+                fill
+                className="object-cover object-center"
+                priority={index === 0}
+              />
+            </div>
+          ))}
           <div className="absolute inset-0 bg-black/30"></div>
         </div>
 
-        {/* Content Overlay */}
-        <div className="relative z-10 px-4 md:px-6 pt-16 h-full">
-          <div className="max-w-7xl mx-auto h-full flex flex-col">
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pt-4 md:pt-8">
+        {/* Navigation Arrows */}
+        <button
+          onClick={goToPrevious}
+          className="absolute left-4 md:left-8 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-2 md:p-3 transition-all duration-300 group"
+        >
+          <ChevronLeft size={24} className="text-white group-hover:scale-110 transition-transform" />
+        </button>
+
+        <button
+          onClick={goToNext}
+          className="absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-2 md:p-3 transition-all duration-300 group"
+        >
+          <ChevronRight size={24} className="text-white group-hover:scale-110 transition-transform" />
+        </button>
+
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20 hidden md:flex space-x-2">
+          {backgroundImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImageIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentImageIndex 
+                  ? 'bg-white w-8' 
+                  : 'bg-white/50 hover:bg-white/75'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Content Overlay with Scroll Animation */}
+        <div 
+          className="relative z-10 h-full flex items-center justify-center"
+          style={{
+            opacity: getScrollOpacity(),
+            transform: `translateY(${getScrollTransform()}px)`,
+            transition: 'transform 0.1s ease-out'
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-8 md:px-16 lg:px-20 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               {/* Left Content */}
-              <div className="space-y-6">
-                <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white leading-tight">
+              <div className="text-center lg:text-left space-y-6 animate-fade-in-up">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight animate-slide-in-left">
                   Beautiful And<br />
-                  <span className="text-purple-light">Stunning</span> Properties in<br />
+                  <span className="text-purple-light animate-text-glow">Stunning</span> Properties in<br />
                   Nigeria
                 </h1>
+                <div className="w-24 h-1 bg-purple-light mx-auto lg:mx-0 animate-slide-in-right"></div>
               </div>
 
               {/* Right Content */}
-              <div className="lg:mt-16 flex flex-col justify-between h-full">
+              <div className="text-center lg:text-left space-y-8 animate-fade-in-up animation-delay-300">
                 <div>
-                  <p className="text-white/90 text-sm leading-relaxed mb-4 md:mb-8 max-w-md">
+                  <p className="text-white/90 text-base md:text-lg leading-relaxed max-w-lg mx-auto lg:mx-0 animate-fade-in-up animation-delay-500">
                     With expert guidance and a deep understanding of Nigeria&apos;s real estate
                     landscape, we&apos;re here to help turn the key to a home that&apos;s perfect for you.
                   </p>
                 </div>
                 
-                {/* Copyright text */}
-                <div className="text-right hidden lg:block">
-                  <p className="text-xs text-white/70">
-                    ©2024 SAPHIRE APARTMENTS ALL<br />
-                    RIGHT RESERVED
-                  </p>
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up animation-delay-700">
+                  <Link 
+                    href="/properties"
+                    className="bg-purple-gradient text-white px-8 py-3 rounded-lg font-medium hover:bg-purple-secondary transition-all duration-300 transform hover:scale-105 shadow-lg text-center"
+                  >
+                    Explore Properties
+                  </Link>
+                  <Link 
+                    href="/properties"
+                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white hover:text-purple-primary transition-all duration-300 transform hover:scale-105 text-center"
+                  >
+                    Schedule Viewing
+                  </Link>
                 </div>
-              </div>
-            </div>
-
-            {/* Search Form */}
-            <div className="pb-4 md:pb-8">
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-xl border border-purple-lighter">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 items-end">
-                  {/* Looking For */}
-                  <div>
-                    <label className="block text-sm font-medium text-purple-primary mb-2 md:mb-3">
-                      Looking For
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="What to look for ?"
-                      className="w-full px-0 py-2 md:py-3 border-0 border-b-2 border-purple-lighter focus:border-purple-primary focus:outline-none text-sm bg-transparent placeholder-gray-400"
-                    />
-                  </div>
-
-                  {/* Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-purple-primary mb-2 md:mb-3">
-                      Type
-                    </label>
-                    <select className="w-full px-0 py-2 md:py-3 border-0 border-b-2 border-purple-lighter focus:border-purple-primary focus:outline-none text-sm text-gray-600 bg-transparent appearance-none cursor-pointer">
-                      <option>Property Type</option>
-                      <option>Apartment</option>
-                      <option>House</option>
-                      <option>Villa</option>
-                      <option>Penthouse</option>
-                    </select>
-                  </div>
-
-                  {/* Price */}
-                  <div>
-                    <label className="block text-sm font-medium text-purple-primary mb-2 md:mb-3">
-                      Price
-                    </label>
-                    <select className="w-full px-0 py-2 md:py-3 border-0 border-b-2 border-purple-lighter focus:border-purple-primary focus:outline-none text-sm text-gray-600 bg-transparent appearance-none cursor-pointer">
-                      <option>Price</option>
-                      <option>Under $100k</option>
-                      <option>$100k - $300k</option>
-                      <option>$300k - $500k</option>
-                      <option>$500k - $1M</option>
-                      <option>$1M+</option>
-                    </select>
-                  </div>
-
-                  {/* Location & Search */}
-                  <div>
-                    <label className="block text-sm font-medium text-purple-primary mb-2 md:mb-3">
-                      Location
-                    </label>
-                    <div className="flex flex-col md:flex-row items-end space-y-2 md:space-y-0 md:space-x-4">
-                      <select className="w-full md:flex-1 px-0 py-2 md:py-3 border-0 border-b-2 border-purple-lighter focus:border-purple-primary focus:outline-none text-sm text-gray-600 bg-transparent appearance-none cursor-pointer">
-                        <option>All Cities</option>
-                        <option>Lagos</option>
-                        <option>Abuja</option>
-                        <option>Port Harcourt</option>
-                        <option>Kano</option>
-                        <option>Ibadan</option>
-                      </select>
-                      <button className="w-full md:w-auto bg-purple-gradient text-white px-6 md:px-8 py-2 md:py-3 rounded-lg flex items-center justify-center space-x-2 hover:bg-purple-secondary transition-colors duration-200 font-medium shadow-lg">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <span className="text-sm">Search</span>
-                      </button>
-                    </div>
-                  </div>
+                
+                {/* Copyright text */}
+                <div className="hidden lg:block lg:mt-16">
+                  <p className="text-xs text-white/60 animate-fade-in-up animation-delay-1000">
+                    ©2024 SAPHIRE APARTMENTS ALL RIGHT RESERVED
+                  </p>
                 </div>
               </div>
             </div>

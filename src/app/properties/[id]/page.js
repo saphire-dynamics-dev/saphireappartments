@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { use, useState } from "react";
+import { use } from "react";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 import ImageGalleryModal from "../../../components/ImageGalleryModal";
@@ -20,29 +21,42 @@ export default function PropertyDetails({ params }) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [viewingModalOpen, setViewingModalOpen] = useState(false);
+  const [visibleSections, setVisibleSections] = useState({});
+  const sectionRefs = useRef({});
 
   // Properly unwrap params using React.use()
   const unwrappedParams = use(params);
   const propertyId = parseInt(unwrappedParams.id);
   const property = propertiesData.find(p => p.id === propertyId);
 
-  if (!property) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="pt-20 flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-purple-primary mb-4">Property Not Found</h1>
-            <p className="text-gray-600 mb-8">The property you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-            <Link href="/properties" className="bg-purple-gradient text-white px-6 py-3 rounded-lg hover:bg-purple-secondary transition-colors">
-              Back to Properties
-            </Link>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  // Intersection Observer for animations
+  useEffect(() => {
+    const observers = [];
+    
+    Object.keys(sectionRefs.current).forEach(key => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisibleSections(prev => ({ ...prev, [key]: true }));
+          }
+        },
+        { threshold: 0.1 }
+      );
+
+      if (sectionRefs.current[key]) {
+        observer.observe(sectionRefs.current[key]);
+        observers.push(observer);
+      }
+    });
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, []);
+
+  const setSectionRef = (key) => (ref) => {
+    sectionRefs.current[key] = ref;
+  };
 
   const handleGuestChange = (increment) => {
     if (increment && guests < 2) {
@@ -78,26 +92,30 @@ export default function PropertyDetails({ params }) {
       {/* Header */}
       <div className="pt-20 pb-8">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <Link href="/properties" className="inline-flex items-center space-x-2 text-purple-primary hover:text-purple-secondary transition-colors mb-6">
-            <ArrowLeft size={20} />
-            <span>Back to Properties</span>
-          </Link>
+          <div className="animate-fade-in-up">
+            <Link href="/properties" className="inline-flex items-center space-x-2 text-purple-primary hover:text-purple-secondary transition-colors mb-6">
+              <ArrowLeft size={20} />
+              <span>Back to Properties</span>
+            </Link>
+          </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
               {/* Image Gallery */}
-              <div className="mb-8">
+              <div ref={setSectionRef('gallery')} className={`mb-8 transition-all duration-1000 ${
+                visibleSections.gallery ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`}>
                 {/* Main Image */}
-                <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden mb-4 cursor-pointer" onClick={() => openModal(0)}>
+                <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden mb-4 cursor-pointer transform hover:scale-105 transition-transform duration-300" onClick={() => openModal(0)}>
                   <Image
                     src={property.images[0]}
                     alt={property.title}
                     fill
-                    className="object-cover hover:scale-105 transition-transform duration-300"
+                    className="object-cover"
                   />
                   <div className="absolute top-4 left-4">
-                    <span className="bg-purple-gradient text-white px-3 py-1 rounded-full text-sm font-medium shadow-md">
+                    <span className="bg-purple-gradient text-white px-3 py-1 rounded-full text-sm font-medium shadow-md animate-pulse">
                       {property.type}
                     </span>
                   </div>
@@ -117,14 +135,14 @@ export default function PropertyDetails({ params }) {
                       {property.images.map((image, index) => (
                         <div 
                           key={index} 
-                          className="relative h-20 w-28 md:h-24 md:w-32 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-purple-primary transition-colors"
+                          className="relative h-20 w-28 md:h-24 md:w-32 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-purple-primary transition-all duration-300 transform hover:scale-105"
                           onClick={() => openModal(index)}
                         >
                           <Image
                             src={image}
                             alt={`${property.title} ${index + 1}`}
                             fill
-                            className="object-cover hover:scale-105 transition-transform duration-300"
+                            className="object-cover"
                           />
                           <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300"></div>
                         </div>
@@ -140,7 +158,7 @@ export default function PropertyDetails({ params }) {
                 <div className="mt-4 text-center">
                   <button 
                     onClick={() => openModal(0)}
-                    className="inline-flex items-center px-4 py-2 border border-purple-primary rounded-lg text-purple-primary bg-white hover:bg-purple-primary hover:text-white transition-colors text-sm font-medium"
+                    className="inline-flex items-center px-4 py-2 border border-purple-primary rounded-lg text-purple-primary bg-white hover:bg-purple-primary hover:text-white transition-all duration-300 text-sm font-medium transform hover:scale-105"
                   >
                     <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
@@ -151,7 +169,9 @@ export default function PropertyDetails({ params }) {
               </div>
 
               {/* Property Info */}
-              <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg mb-8">
+              <div ref={setSectionRef('info')} className={`bg-white rounded-2xl p-6 md:p-8 shadow-lg mb-8 transition-all duration-1000 ${
+                visibleSections.info ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`}>
                 <div className="flex items-start justify-between mb-6">
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-purple-primary mb-2">{property.title}</h1>
@@ -165,36 +185,46 @@ export default function PropertyDetails({ params }) {
 
                 {/* Property Stats */}
                 <div className="grid grid-cols-3 gap-4 mb-8">
-                  <div className="text-center p-4 bg-purple-lighter rounded-lg">
-                    <Users className="mx-auto mb-2 text-purple-primary" size={24} />
-                    <div className="text-lg font-semibold text-purple-primary">{property.bedrooms}</div>
-                    <div className="text-sm text-gray-600">Bedrooms</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-lighter rounded-lg">
-                    <Bath className="mx-auto mb-2 text-purple-primary" size={24} />
-                    <div className="text-lg font-semibold text-purple-primary">{property.bathrooms}</div>
-                    <div className="text-sm text-gray-600">Bathrooms</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-lighter rounded-lg">
-                    <Home className="mx-auto mb-2 text-purple-primary" size={24} />
-                    <div className="text-lg font-semibold text-purple-primary">{property.area}</div>
-                    <div className="text-sm text-gray-600">Area</div>
-                  </div>
+                  {[
+                    { icon: Users, value: property.bedrooms, label: 'Bedrooms' },
+                    { icon: Bath, value: property.bathrooms, label: 'Bathrooms' },
+                    { icon: Home, value: property.area, label: 'Area' }
+                  ].map((stat, index) => (
+                    <div 
+                      key={index}
+                      className={`text-center p-4 bg-purple-lighter rounded-lg hover:bg-purple-light hover:scale-105 transition-all duration-300 ${
+                        visibleSections.info ? 'animate-fade-in-up' : ''
+                      }`}
+                      style={{ animationDelay: visibleSections.info ? `${index * 150}ms` : '0ms' }}
+                    >
+                      <stat.icon className="mx-auto mb-2 text-purple-primary" size={24} />
+                      <div className="text-lg font-semibold text-purple-primary">{stat.value}</div>
+                      <div className="text-sm text-gray-600">{stat.label}</div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Description */}
-                <div className="mb-8">
+                <div className={`mb-8 transition-all duration-800 ${
+                  visibleSections.info ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-5'
+                }`} style={{ transitionDelay: visibleSections.info ? '300ms' : '0ms' }}>
                   <h2 className="text-xl font-semibold text-purple-primary mb-4">Description</h2>
                   <p className="text-gray-600 leading-relaxed">{property.description}</p>
                 </div>
 
                 {/* Features */}
-                <div className="mb-8">
+                <div className={`mb-8 transition-all duration-800 ${
+                  visibleSections.info ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-5'
+                }`} style={{ transitionDelay: visibleSections.info ? '500ms' : '0ms' }}>
                   <h2 className="text-xl font-semibold text-purple-primary mb-4">Features & Amenities</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {property.features.map((feature, index) => (
-                      <div key={index} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-2 h-2 bg-purple-primary rounded-full"></div>
+                      <div 
+                        key={index} 
+                        className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg hover:bg-purple-lighter hover:scale-105 transition-all duration-300"
+                        style={{ transitionDelay: `${index * 50}ms` }}
+                      >
+                        <div className="w-2 h-2 bg-purple-primary rounded-full animate-pulse"></div>
                         <span className="text-sm text-gray-700">{feature}</span>
                       </div>
                     ))}
@@ -202,11 +232,17 @@ export default function PropertyDetails({ params }) {
                 </div>
 
                 {/* Estate Amenities */}
-                <div className="mb-8">
+                <div className={`mb-8 transition-all duration-800 ${
+                  visibleSections.info ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+                }`} style={{ transitionDelay: visibleSections.info ? '700ms' : '0ms' }}>
                   <h2 className="text-xl font-semibold text-purple-primary mb-4">Estate Amenities</h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {property.amenities.map((amenity, index) => (
-                      <div key={index} className="text-center p-3 bg-purple-lighter rounded-lg">
+                      <div 
+                        key={index} 
+                        className="text-center p-3 bg-purple-lighter rounded-lg hover:bg-purple-light hover:text-white hover:scale-105 transition-all duration-300"
+                        style={{ transitionDelay: `${index * 100}ms` }}
+                      >
                         <span className="text-sm text-purple-primary font-medium">{amenity}</span>
                       </div>
                     ))}
@@ -214,12 +250,18 @@ export default function PropertyDetails({ params }) {
                 </div>
 
                 {/* House Rules */}
-                <div>
+                <div className={`transition-all duration-800 ${
+                  visibleSections.info ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+                }`} style={{ transitionDelay: visibleSections.info ? '900ms' : '0ms' }}>
                   <h2 className="text-xl font-semibold text-purple-primary mb-4">House Rules</h2>
                   <div className="space-y-2">
                     {property.rules.map((rule, index) => (
-                      <div key={index} className="flex items-start space-x-2">
-                        <div className="w-2 h-2 bg-purple-secondary rounded-full mt-2"></div>
+                      <div 
+                        key={index} 
+                        className="flex items-start space-x-2 hover:bg-gray-50 p-2 rounded transition-colors duration-300"
+                        style={{ transitionDelay: `${index * 100}ms` }}
+                      >
+                        <div className="w-2 h-2 bg-purple-secondary rounded-full mt-2 animate-pulse"></div>
                         <span className="text-gray-600">{rule}</span>
                       </div>
                     ))}
@@ -230,7 +272,9 @@ export default function PropertyDetails({ params }) {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl p-6 shadow-lg sticky top-24">
+              <div ref={setSectionRef('sidebar')} className={`bg-white rounded-2xl p-6 shadow-lg sticky top-24 transition-all duration-1000 ${
+                visibleSections.sidebar ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
+              }`}>
                 <h3 className="text-xl font-semibold text-purple-primary mb-6">Book This Property</h3>
                 
                 <div className="space-y-4 mb-6">
@@ -334,18 +378,18 @@ export default function PropertyDetails({ params }) {
                 <div className="flex flex-col gap-2 mb-4">
                   <button 
                     onClick={handleBookNow}
-                    className="w-full bg-purple-gradient text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-secondary transition-colors shadow-md"
+                    className="w-full bg-purple-gradient text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-secondary transition-all duration-300 shadow-md transform hover:scale-105"
                   >
                     Book Now
                   </button>
                   <button 
                     onClick={() => setViewingModalOpen(true)}
-                    className="w-full border-2 border-purple-primary text-purple-primary py-3 px-6 rounded-lg font-medium hover:bg-purple-primary hover:text-white transition-colors"
+                    className="w-full border-2 border-purple-primary text-purple-primary py-3 px-6 rounded-lg font-medium hover:bg-purple-primary hover:text-white transition-all duration-300 transform hover:scale-105"
                   >
                     Schedule Viewing
                   </button>
                   <div className="text-center mt-2">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 animate-fade-in-up" style={{ animationDelay: '1000ms' }}>
                       *Viewing fee: ₦2,000 (refundable with booking)
                     </p>
                   </div>
@@ -354,18 +398,23 @@ export default function PropertyDetails({ params }) {
                 <div className="border-t pt-4">
                   <h4 className="font-semibold text-purple-primary mb-3">Contact Information</h4>
                   <div className="space-y-3">
-                    <a href={`tel:${property.contact.phone}`} className="flex items-center space-x-3 p-3 bg-purple-lighter rounded-lg hover:bg-purple-light transition-colors">
-                      <Phone size={18} className="text-purple-primary" />
-                      <span className="text-purple-primary font-medium">{property.contact.phone}</span>
-                    </a>
-                    <a href={`mailto:${property.contact.email}`} className="flex items-center space-x-3 p-3 bg-purple-lighter rounded-lg hover:bg-purple-light transition-colors">
-                      <Mail size={18} className="text-purple-primary" />
-                      <span className="text-purple-primary font-medium">{property.contact.email}</span>
-                    </a>
-                    <a href={`https://wa.me/${property.contact.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 p-3 bg-purple-lighter rounded-lg hover:bg-purple-light transition-colors">
-                      <MessageCircle size={18} className="text-purple-primary" />
-                      <span className="text-purple-primary font-medium">WhatsApp</span>
-                    </a>
+                    {[
+                      { icon: Phone, href: `tel:${property.contact.phone}`, label: property.contact.phone },
+                      { icon: Mail, href: `mailto:${property.contact.email}`, label: property.contact.email },
+                      { icon: MessageCircle, href: `https://wa.me/${property.contact.whatsapp.replace(/\D/g, '')}`, label: 'WhatsApp' }
+                    ].map((contact, index) => (
+                      <a 
+                        key={index}
+                        href={contact.href} 
+                        target={contact.icon === MessageCircle ? "_blank" : undefined}
+                        rel={contact.icon === MessageCircle ? "noopener noreferrer" : undefined}
+                        className="flex items-center space-x-3 p-3 bg-purple-lighter rounded-lg hover:bg-purple-light transition-all duration-300 transform hover:scale-105"
+                        style={{ transitionDelay: `${index * 150}ms` }}
+                      >
+                        <contact.icon size={18} className="text-purple-primary" />
+                        <span className="text-purple-primary font-medium">{contact.label}</span>
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
