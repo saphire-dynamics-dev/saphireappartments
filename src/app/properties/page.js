@@ -127,7 +127,7 @@ export default function Properties() {
           </svg>
         </div>
         <h3 className="text-2xl font-semibold text-gray-700 mb-4">No Properties Available</h3>
-        <p className="text-gray-500 mb-6">We're currently updating our listings. Please check back soon for new properties.</p>
+        <p className="text-gray-500 mb-6">We&apos;re currently updating our listings. Please check back soon for new properties.</p>
         <Link 
           href="/"
           className="inline-flex items-center px-6 py-3 bg-purple-gradient text-white rounded-lg hover:bg-purple-secondary transition-all duration-300 font-medium transform hover:scale-105"
