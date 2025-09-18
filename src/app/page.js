@@ -20,8 +20,8 @@ export default function Home() {
   const backgroundImages = [
     "/apartmentimg1.png",
     "/apartmentimg2bed.png",
-    "/d14(1).jpeg",
-    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+    // "/up5.jpeg",
+    "/up2.jpeg"
   ];
 
   // Auto-carousel effect

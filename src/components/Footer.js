@@ -53,7 +53,7 @@ export default function Footer() {
             <ul className="space-y-2 text-gray-600 text-sm md:text-base">
               <li>Abuja, Nigeria</li>
               <li>+234 901 234 5678</li>
-              <li>info@saphireapartments.ng</li>
+              <li>saphireapartments2@gmail.com</li>
             </ul>
           </div>
         </div>

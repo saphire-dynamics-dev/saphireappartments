@@ -629,3 +629,362 @@ export const sendViewingRequestEmail = async (viewingData) => {
     throw new Error('Failed to send viewing emails');
   }
 };
+
+// Email utility functions for booking system
+
+export async function sendBookingConfirmationEmail({
+  guestEmail,
+  guestName,
+  property,
+  bookingDetails,
+  bookingId
+}) {
+  // This is a placeholder - implement with your preferred email service
+  // (Nodemailer, SendGrid, AWS SES, etc.)
+  
+  const emailData = {
+    to: guestEmail,
+    subject: `Booking Confirmation - ${property.title}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #8B5CF6;">Booking Request Received</h2>
+        <p>Dear ${guestName},</p>
+        <p>Thank you for your booking request. We have received your request and will contact you shortly to confirm availability and payment details.</p>
+        
+        <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin: 0 0 15px 0; color: #374151;">Booking Details</h3>
+          <p><strong>Property:</strong> ${property.title}</p>
+          <p><strong>Location:</strong> ${property.location}</p>
+          <p><strong>Check-in:</strong> ${new Date(bookingDetails.checkInDate).toLocaleDateString()}</p>
+          <p><strong>Check-out:</strong> ${new Date(bookingDetails.checkOutDate).toLocaleDateString()}</p>
+          <p><strong>Guests:</strong> ${bookingDetails.guests}</p>
+          <p><strong>Nights:</strong> ${bookingDetails.numberOfNights}</p>
+          <p><strong>Total Amount:</strong> ₦${bookingDetails.totalAmount.toLocaleString()}</p>
+          <p><strong>Booking ID:</strong> ${bookingId}</p>
+        </div>
+        
+        <p>Our team will contact you within 24 hours to confirm your booking and provide payment instructions.</p>
+        <p>If you have any questions, please don't hesitate to contact us.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+          <p style="color: #6B7280; font-size: 14px;">
+            Best regards,<br>
+            Saphire Apartments Team
+          </p>
+        </div>
+      </div>
+    `
+  };
+
+  // Implement actual email sending here
+  console.log('Sending guest confirmation email:', emailData);
+  return true;
+}
+
+export async function sendBookingNotificationEmail({
+  property,
+  guestDetails,
+  bookingDetails,
+  bookingId
+}) {
+  // This is a placeholder - implement with your preferred email service
+  
+  const emailData = {
+    to: 'admin@saphireapartments.com', // Replace with actual admin email
+    subject: `New Booking Request - ${property.title}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #DC2626;">New Booking Request</h2>
+        <p>A new booking request has been submitted through the website.</p>
+        
+        <div style="background: #FEF2F2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #DC2626;">
+          <h3 style="margin: 0 0 15px 0; color: #374151;">Guest Information</h3>
+          <p><strong>Name:</strong> ${guestDetails.firstName} ${guestDetails.lastName}</p>
+          <p><strong>Email:</strong> ${guestDetails.email}</p>
+          <p><strong>Phone:</strong> ${guestDetails.phone}</p>
+        </div>
+        
+        <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin: 0 0 15px 0; color: #374151;">Booking Details</h3>
+          <p><strong>Property:</strong> ${property.title}</p>
+          <p><strong>Location:</strong> ${property.location}</p>
+          <p><strong>Check-in:</strong> ${new Date(bookingDetails.checkInDate).toLocaleDateString()}</p>
+          <p><strong>Check-out:</strong> ${new Date(bookingDetails.checkOutDate).toLocaleDateString()}</p>
+          <p><strong>Guests:</strong> ${bookingDetails.guests}</p>
+          <p><strong>Nights:</strong> ${bookingDetails.numberOfNights}</p>
+          <p><strong>Total Amount:</strong> ₦${bookingDetails.totalAmount.toLocaleString()}</p>
+          <p><strong>Booking ID:</strong> ${bookingId}</p>
+        </div>
+        
+        <div style="margin-top: 30px;">
+          <p><strong>Action Required:</strong> Please review this booking request and contact the guest to confirm availability and payment details.</p>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+          <p style="color: #6B7280; font-size: 14px;">
+            This is an automated notification from the Saphire Apartments booking system.
+          </p>
+        </div>
+      </div>
+    `
+  };
+
+  // Implement actual email sending here
+  console.log('Sending admin notification email:', emailData);
+  return true;
+}
+
+// Send maintenance request confirmation email to requester
+export const sendMaintenanceRequestConfirmationEmail = async (maintenanceData) => {
+  const transporter = createTransporter();
+
+  const {
+    requesterEmail,
+    requesterName,
+    apartmentTitle,
+    apartmentLocation,
+    issueCategory,
+    priority,
+    title,
+    description,
+    requestId
+  } = maintenanceData;
+
+  // Priority colors for visual feedback
+  const priorityColors = {
+    'Low': '#28a745',
+    'Medium': '#ffc107',
+    'High': '#fd7e14',
+    'Emergency': '#dc3545'
+  };
+
+  const priorityColor = priorityColors[priority] || '#6c757d';
+
+  const confirmationEmailHtml = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Maintenance Request Confirmed - Saphire Apartments</title>
+      <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: #f8f9fa;
+        }
+        .email-container {
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+          background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 600;
+        }
+        .content {
+          padding: 30px 20px;
+        }
+        .request-details {
+          background-color: #f8f9fa;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 20px 0;
+        }
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 8px 0;
+          border-bottom: 1px solid #e9ecef;
+        }
+        .detail-row:last-child {
+          border-bottom: none;
+        }
+        .detail-label {
+          font-weight: 600;
+          color: #ff6b35;
+        }
+        .detail-value {
+          color: #6c757d;
+          text-align: right;
+          max-width: 60%;
+        }
+        .priority-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          border-radius: 20px;
+          color: white;
+          font-weight: 600;
+          font-size: 12px;
+          background-color: ${priorityColor};
+        }
+        .section-title {
+          color: #ff6b35;
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 15px;
+          border-bottom: 2px solid #ffe5dc;
+          padding-bottom: 5px;
+        }
+        .next-steps {
+          background-color: #e8f5e8;
+          border: 1px solid #c3e6cb;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 20px 0;
+        }
+        .footer {
+          background-color: #f8f9fa;
+          padding: 20px;
+          text-align: center;
+          color: #6c757d;
+          font-size: 14px;
+        }
+        @media (max-width: 600px) {
+          .detail-row {
+            flex-direction: column;
+          }
+          .detail-label {
+            margin-bottom: 5px;
+          }
+          .detail-value {
+            text-align: left;
+            max-width: 100%;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="header">
+          <h1>🔧 Maintenance Request Received</h1>
+          <p style="margin: 10px 0 0 0; opacity: 0.9;">We're on it!</p>
+        </div>
+
+        <div class="content">
+          <h2 style="color: #ff6b35; margin-top: 0;">Dear ${requesterName},</h2>
+          
+          <p>Thank you for submitting your maintenance request. We have received your request and our maintenance team will review it promptly.</p>
+
+          <div class="request-details">
+            <h3 class="section-title">🏠 Request Details</h3>
+            <div class="detail-row">
+              <span class="detail-label">Request ID:</span>
+              <span class="detail-value" style="font-family: monospace; color: #495057;">#${requestId.toString().slice(-8).toUpperCase()}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Property:</span>
+              <span class="detail-value">${apartmentTitle}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Location:</span>
+              <span class="detail-value">${apartmentLocation}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Category:</span>
+              <span class="detail-value">${issueCategory}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Priority:</span>
+              <span class="detail-value">
+                <span class="priority-badge">${priority}</span>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Issue:</span>
+              <span class="detail-value">${title}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Submitted:</span>
+              <span class="detail-value">${new Date().toLocaleString('en-US', {
+                timeZone: 'Africa/Lagos',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}</span>
+            </div>
+          </div>
+
+          <div class="next-steps">
+            <h3 style="color: #155724; margin-top: 0;">📋 What Happens Next?</h3>
+            <ul style="color: #155724; margin: 10px 0; padding-left: 20px;">
+              <li><strong>Review:</strong> Our maintenance team will review your request within 24 hours</li>
+              <li><strong>Contact:</strong> We'll contact you to schedule a convenient time for inspection/repair</li>
+              <li><strong>Resolution:</strong> Our qualified technicians will address the issue promptly</li>
+              <li><strong>Updates:</strong> You'll receive regular updates on the progress</li>
+              <li><strong>Completion:</strong> We'll confirm when the work is completed to your satisfaction</li>
+            </ul>
+          </div>
+
+          ${priority === 'Emergency' ? `
+          <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <h4 style="color: #721c24; margin-top: 0;">🚨 Emergency Request</h4>
+            <p style="color: #721c24; margin-bottom: 0;">
+              We understand this is an emergency situation. Our team has been alerted and will prioritize your request. 
+              If this is a life-threatening emergency, please contact emergency services immediately at 199.
+            </p>
+          </div>
+          ` : ''}
+
+          <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <h4 style="color: #856404; margin-top: 0;">📞 Need Immediate Assistance?</h4>
+            <p style="color: #856404; margin-bottom: 0;">
+              If you have any questions about your request or need immediate assistance, please contact us:
+            </p>
+            <p style="color: #856404; margin: 10px 0 0 0;">
+              📧 Email: maintenance@saphireapartments.ng<br>
+              📱 Phone: +234 806 644 6777<br>
+              💬 WhatsApp: +234 806 644 6777
+            </p>
+          </div>
+
+          <p style="margin-top: 25px;">We appreciate your patience and look forward to resolving this issue quickly.</p>
+          
+          <p style="margin-top: 20px;">
+            Best regards,<br>
+            <strong>Saphire Apartments Maintenance Team</strong>
+          </p>
+        </div>
+
+        <div class="footer">
+          <p>This is an automated confirmation email. Please keep this email for your records.</p>
+          <p>© ${new Date().getFullYear()} Saphire Apartments. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const mailOptions = {
+    from: `"Saphire Apartments Maintenance" <${process.env.SMTP_USER}>`,
+    to: requesterEmail,
+    subject: `Maintenance Request Confirmed - ${title} | Saphire Apartments`,
+    html: confirmationEmailHtml,
+  };
+
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    return {
+      success: true,
+      messageId: result.messageId
+    };
+  } catch (error) {
+    console.error('Error sending maintenance confirmation email:', error);
+    throw new Error('Failed to send maintenance confirmation email');
+  }
+};

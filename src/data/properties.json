@@ -2,8 +2,8 @@
   {
     "id": 1,
     "title": "Luxury Shortlet Apartment",
-    "location": "D-Block Room D14, Stargate Estate, Durumi",
-    "price": "₦55,000/night",
+    "location": "Stargate Estate, Durumi",
+    "price": "₦60,000/night",
     "bedrooms": 1,
     "bathrooms": 1,
     "area": "65 sqm",
@@ -25,7 +25,7 @@
       "No smoking inside the apartment",
       "No pets allowed",
       "Maximum 2 guests",
-      "Check-in: 2:00 PM",
+      "Check-in: 1:00 PM",
       "Check-out: 12:00 PM",
       "Quiet hours: 10:00 PM - 6:00 AM"
     ],
@@ -38,8 +38,8 @@
   {
     "id": 2,
     "title": "Luxury Shortlet Apartment",
-    "location": "C-Block Room C6, Stargate Estate, Durumi",
-    "price": "₦55,000/night",
+    "location": "Stargate Estate, Durumi",
+    "price": "₦60,000/night",
     "bedrooms": 1,
     "bathrooms": 1,
     "area": "65 sqm",
@@ -61,7 +61,43 @@
       "No smoking inside the apartment",
       "No pets allowed",
       "Maximum 2 guests",
-      "Check-in: 2:00 PM",
+      "Check-in: 1:00 PM",
+      "Check-out: 12:00 PM",
+      "Quiet hours: 10:00 PM - 6:00 AM"
+    ],
+    "contact": {
+      "phone": "+234 901 234 5678",
+      "email": "info@saphireapartments.ng",
+      "whatsapp": "+234 901 234 5678"
+    }
+  },
+  {
+    "id": 3,
+    "title": "Luxury Shortlet Apartment",
+    "location": "Uptown Apartments, Katampe",
+    "price": "₦60,000/night",
+    "bedrooms": 1,
+    "bathrooms": 1,
+    "area": "65 sqm",
+    "type": "Shortlet",
+    "description": "Move into one of the most beautiful fully furnished apartments in the prestigious Uptown Apartments, Katampe. Enjoy 24/7 electricity, air conditioning, chandelier, dining area, tiled floors, and high-speed Wi-Fi. The kitchen is fully equipped with a refrigerator, microwave, dishwasher, and prepaid meter. Comes with hot water and all the comforts you need. Secure estate, peaceful environment, and close to major city centers. Perfect for professionals or couples.",
+    "features": ["24/7 Electricity", "Air Conditioning", "Fully Furnished", "High-Speed Wi-Fi", "Secure Estate", "Hot Water", "Refrigerator", "Microwave", "Dishwasher", "Prepaid Meter"],
+    "images": ["/up1.jpeg", "/up2.jpeg", "/up3.jpeg", "/up4.jpeg", "/up5.jpeg", "/up6.jpeg"],
+    "amenities": [
+      "Swimming Pool",
+      "Gym",
+      "24/7 Security",
+      "Parking Space",
+      "Elevator",
+      "Backup Generator",
+      "Water Supply",
+      "Waste Management"
+    ],
+    "rules": [
+      "No smoking inside the apartment",
+      "No pets allowed",
+      "Maximum 2 guests",
+      "Check-in: 1:00 PM",
       "Check-out: 12:00 PM",
       "Quiet hours: 10:00 PM - 6:00 AM"
     ],

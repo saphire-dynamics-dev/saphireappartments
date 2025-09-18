@@ -117,6 +117,11 @@ body {
   display: none;  /* Safari and Chrome */
 }
 
+/* Smooth scrolling behavior */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
 /* Mobile modal optimizations */
 @media (max-width: 768px) {
   .modal-image {
