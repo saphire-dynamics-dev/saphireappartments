@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
 
-export default function PaymentCallback() {
+function PaymentCallbackContent() {
   const [status, setStatus] = useState('verifying');
   const [transactionData, setTransactionData] = useState(null);
   const [error, setError] = useState(null);
@@ -241,11 +241,27 @@ export default function PaymentCallback() {
     }
   };
 
+  return renderContent();
+}
+
+function PaymentCallbackLoading() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg max-w-2xl w-full">
-        {renderContent()}
+        <div className="text-center py-20">
+          <Loader size={64} className="mx-auto mb-6 text-purple-primary animate-spin" />
+          <h2 className="text-2xl font-bold text-purple-primary mb-4">Loading Payment Details</h2>
+          <p className="text-gray-600">Please wait while we load your payment information...</p>
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentCallback() {
+  return (
+    <Suspense fallback={<PaymentCallbackLoading />}>
+      <PaymentCallbackContent />
+    </Suspense>
   );
 }
