@@ -477,68 +477,65 @@ export default function PropertyDetails({ params }) {
                 <h3 className="text-xl font-semibold text-purple-primary mb-6">Book This Property</h3>
                 
                 <div className="space-y-4 mb-6">
-                  {/* Custom Date Range Picker */}
+                  {/* Check-in Date Input */}
                   <div className="relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Dates</label>
-                    <button
-                      type="button"
-                      onClick={() => setShowDatePicker(!showDatePicker)}
-                      className="w-full p-3 border border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Calendar size={18} className="text-gray-400" />
-                        <span className="text-gray-700">
-                          {checkInDate && checkOutDate 
-                            ? `${new Date(checkInDate).toLocaleDateString()} - ${new Date(checkOutDate).toLocaleDateString()}`
-                            : checkInDate 
-                            ? `${new Date(checkInDate).toLocaleDateString()} - Select end date`
-                            : 'Select check-in and check-out dates'
-                          }
-                        </span>
-                      </div>
-                      <ChevronDown 
-                        size={20} 
-                        className={`text-gray-400 transition-transform duration-200 ${showDatePicker ? 'rotate-180' : ''}`} 
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Check-in Date</label>
+                    <div className="relative">
+                      <Calendar size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" />
+                      <input
+                        type="date"
+                        value={checkInDate}
+                        onChange={(e) => setCheckInDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none bg-white hover:bg-gray-50 transition-colors text-gray-700"
                       />
-                    </button>
-
-                    {/* Date Picker Modal - Properly centered */}
-                    {showDatePicker && (
-                      <>
-                        <div 
-                          className="fixed inset-0 z-40 bg-black/20"
-                          onClick={() => setShowDatePicker(false)}
-                        />
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                          <div className="w-full max-w-4xl">
-                            <DateRangePicker
-                              startDate={checkInDate}
-                              endDate={checkOutDate}
-                              onDateChange={handleDateChange}
-                              unavailableDates={unavailableDates}
-                              apartmentId={apartmentId}
-                              minDate={new Date()}
-                            />
-                          </div>
-                        </div>
-                      </>
-                    )}
-
+                    </div>
+                    
                     {/* Loading indicator for dates */}
                     {loadingDates && (
                       <div className="mt-2 text-sm text-gray-500 flex items-center space-x-2">
-                        <div className="animate-spin w-4 h-4 border-2 border-purple-primary border-t-transparent rounded-full"></div>
+                        <div className="animate-spin w-3 h-3 border-2 border-purple-primary border-t-transparent rounded-full"></div>
                         <span>Loading availability...</span>
                       </div>
                     )}
-
-                    {/* Show unavailable dates count */}
-                    {unavailableDates.length > 0 && !loadingDates && (
-                      <div className="mt-2 text-xs text-gray-500">
-                        {unavailableDates.length} booking period{unavailableDates.length > 1 ? 's' : ''} unavailable
-                      </div>
-                    )}
                   </div>
+
+                  {/* Check-out Date Input */}
+                  <div className="relative">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Check-out Date</label>
+                    <div className="relative">
+                      <Calendar size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" />
+                      <input
+                        type="date"
+                        value={checkOutDate}
+                        onChange={(e) => setCheckOutDate(e.target.value)}
+                        min={checkInDate || new Date().toISOString().split('T')[0]}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none bg-white hover:bg-gray-50 transition-colors text-gray-700"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Date validation messages */}
+                  {checkInDate && checkOutDate && (
+                    <div className="text-sm">
+                      {new Date(checkInDate) >= new Date(checkOutDate) ? (
+                        <div className="text-red-600 bg-red-50 border border-red-200 rounded-lg p-2">
+                          Check-out date must be after check-in date
+                        </div>
+                      ) : (
+                        <div className="text-green-600 bg-green-50 border border-green-200 rounded-lg p-2">
+                          ✓ {Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24))} night{Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24)) > 1 ? 's' : ''} selected
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Show unavailable dates count */}
+                  {/* {unavailableDates.length > 0 && !loadingDates && (
+                    <div className="text-xs text-gray-500 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                      ⚠️ {unavailableDates.length} booking period{unavailableDates.length > 1 ? 's' : ''} unavailable for this property
+                    </div>
+                  )} */}
                   
                   {/* Custom Guests Dropdown */}
                   <div className="relative">
@@ -619,11 +616,19 @@ export default function PropertyDetails({ params }) {
                 <div className="flex flex-col gap-2 mb-4">
                   <button 
                     onClick={handleBookNow}
-                    // disabled={apartment.status !== 'Available'}
-                    className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 shadow-md transform hover:scale-105 
-                        bg-purple-gradient text-white hover:bg-purple-secondary`}
+                    disabled={!checkInDate || !checkOutDate || new Date(checkInDate) >= new Date(checkOutDate)}
+                    className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 shadow-md transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                      (!checkInDate || !checkOutDate || new Date(checkInDate) >= new Date(checkOutDate))
+                        ? 'bg-gray-400 text-gray-600' 
+                        : 'bg-purple-gradient text-white hover:bg-purple-secondary'
+                    }`}
                   >
-                    {apartment.status === 'Available' ? 'Book Now' : 'Book Now'}
+                    {!checkInDate || !checkOutDate 
+                      ? 'Select Dates to Book' 
+                      : new Date(checkInDate) >= new Date(checkOutDate)
+                      ? 'Invalid Date Range'
+                      : 'Book Now'
+                    }
                   </button>
                   <button 
                     onClick={() => setViewingModalOpen(true)}

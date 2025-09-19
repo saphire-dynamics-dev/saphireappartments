@@ -94,9 +94,9 @@ export default function About() {
                 are made. Our commitment to excellence and personalized service has helped 
                 hundreds of families across Lagos, Abuja, and other major Nigerian cities find their ideal properties.
               </p>
-              <button className="bg-purple-gradient text-white px-6 md:px-8 py-2 md:py-3 rounded-lg hover:bg-purple-secondary transition-all duration-300 shadow-md text-sm md:text-base transform hover:scale-105">
+              {/* <button className="bg-purple-gradient text-white px-6 md:px-8 py-2 md:py-3 rounded-lg hover:bg-purple-secondary transition-all duration-300 shadow-md text-sm md:text-base transform hover:scale-105">
                 Contact Our Team
-              </button>
+              </button> */}
             </div>
             <div className={`relative h-64 md:h-96 mt-8 lg:mt-0 transition-all duration-1000 ${
               visibleSections.story ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'

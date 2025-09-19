@@ -50,21 +50,17 @@ export default function ScheduleViewingModal({ isOpen, onClose, property }) {
         setIsSubmitting(false);
         setShowSuccess(true);
 
-        // Auto close after 3 seconds
-        setTimeout(() => {
-          setShowSuccess(false);
-          onClose();
-          // Reset form
-          setFormData({
-            firstName: '',
-            lastName: '',
-            phone: '',
-            email: '',
-            preferredDate: '',
-            preferredTime: '',
-            message: ''
-          });
-        }, 3000);
+        // Remove auto close - now manually closed
+        // Reset form
+        setFormData({
+          firstName: '',
+          lastName: '',
+          phone: '',
+          email: '',
+          preferredDate: '',
+          preferredTime: '',
+          message: ''
+        });
       } else {
         throw new Error(result.error || 'Failed to schedule viewing');
       }
@@ -106,12 +102,29 @@ export default function ScheduleViewingModal({ isOpen, onClose, property }) {
               </svg>
             </div>
             <h3 className="text-2xl font-bold text-purple-primary mb-2">Viewing Scheduled!</h3>
-            <p className="text-gray-600 mb-4">
-              Your viewing request has been sent successfully. An agent will reach out to you shortly to confirm the appointment.
+            <p className="text-gray-600 mb-6">
+              Your viewing request has been sent successfully. Our agent will reach out to you shortly to discuss further details about your viewing, terms of payment, and your preferences for the appointment.
             </p>
-            <div className="text-sm text-gray-500">
-              This window will close automatically...
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <h4 className="font-semibold text-blue-800 mb-2">What to expect:</h4>
+              <ul className="text-sm text-blue-700 text-left space-y-1">
+                <li>• Discussion of viewing fee payment (₦2,000)</li>
+                <li>• Confirmation of your preferred date and time</li>
+                <li>• Property access and meeting location details</li>
+                <li>• Answer any questions you may have about the property</li>
+              </ul>
             </div>
+
+            <button
+              onClick={() => {
+                setShowSuccess(false);
+                onClose();
+              }}
+              className="w-full bg-purple-gradient text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-secondary transition-colors"
+            >
+              Close
+            </button>
           </div>
         ) : (
           // Viewing Form
