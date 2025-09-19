@@ -682,14 +682,14 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                   placeholder="Enter your 11-digit NIN"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Optional: Your National Identification Number for verification
+                  Your National Identification Number for verification
                 </p>
               </div>
 
               {/* NIN Image Upload Section */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload NIN Document (Optional)
+                  Upload NIN Document
                 </label>
                 <div className="space-y-3">
                   {/* Upload Input */}
