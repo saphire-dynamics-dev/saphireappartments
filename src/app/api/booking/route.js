@@ -7,6 +7,7 @@ import {
   sendBookingConfirmationEmail,
   sendBookingNotificationEmail,
 } from "@/lib/email";
+import { uploadNinImage } from '@/lib/imageUpload';
 
 export async function POST(request) {
   try {
@@ -105,43 +106,14 @@ export async function POST(request) {
 
     let ninImageData = null;
 
-    // Upload NIN image to Cloudinary if provided
-    console.log('NIN Image:', ninImage.size);
+    // Upload NIN image with fallback
     if (ninImage && ninImage.size > 0) {
       try {
-        const bytes = await ninImage.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        // Upload to Cloudinary
-        const uploadResult = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream(
-              {
-                folder: "saphire-apartments/nin-documents",
-                resource_type: "image",
-                transformation: [
-                  { quality: "auto:good" },
-                  { fetch_format: "auto" },
-                ],
-              },
-              (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-                if (error) console.log("Cloudinary upload error:", error);
-              }
-            )
-            .end(buffer);
-        });
-
-        ninImageData = {
-          url: uploadResult.secure_url,
-          publicId: uploadResult.public_id,
-        };
-
-        console.log("NIN image uploaded successfully:", uploadResult.public_id);
+        ninImageData = await uploadNinImage(ninImage, 'temp-' + Date.now());
+        console.log("NIN image uploaded successfully:", ninImageData.publicId);
       } catch (uploadError) {
-        console.error("Error uploading NIN image:", uploadError);
-        // Continue without NIN image if upload fails
+        console.error("All image upload methods failed:", uploadError.message);
+        // Continue without image but note the failure
       }
     }
 
@@ -172,11 +144,11 @@ export async function POST(request) {
         totalAmount,
       },
       source: "Website",
-      // Add payment method to admin notes
-      adminNotes:
-        paymentMethod === "bank_transfer"
-          ? "Payment method: Bank Transfer - Awaiting confirmation"
-          : undefined,
+      // Add payment method and upload status to admin notes
+      adminNotes: [
+        paymentMethod === "bank_transfer" ? "Payment method: Bank Transfer - Awaiting confirmation" : undefined,
+        !ninImageData && ninImage && ninImage.size > 0 ? "Warning: NIN image upload failed - manual follow-up required" : undefined
+      ].filter(Boolean).join('. ') || undefined,
     });
 
     // Save booking request
