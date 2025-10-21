@@ -106,6 +106,7 @@ export async function POST(request) {
     let ninImageData = null;
 
     // Upload NIN image to Cloudinary if provided
+    console.log('NIN Image:', ninImage.size);
     if (ninImage && ninImage.size > 0) {
       try {
         const bytes = await ninImage.arrayBuffer();
