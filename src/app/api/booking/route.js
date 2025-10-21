@@ -127,6 +127,7 @@ export async function POST(request) {
               (error, result) => {
                 if (error) reject(error);
                 else resolve(result);
+                if (error) console.log("Cloudinary upload error:", error);
               }
             )
             .end(buffer);
