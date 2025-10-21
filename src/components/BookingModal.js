@@ -434,6 +434,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
       if (formData.ninImage) {
         formDataToSend.append('ninImage', formData.ninImage);
       }
+      console.log('Submitting booking with nin:', formData.ninImage);
 
       const bookingResponse = await fetch('/api/booking', {
         method: 'POST',
