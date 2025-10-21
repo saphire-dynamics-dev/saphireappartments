@@ -11,7 +11,12 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
     phone: '',
     email: '',
     nin: '',
-    ninImage: null
+    ninImage: null,
+    emergencyContact: {
+      name: '',
+      phone: '',
+      relationship: ''
+    }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -80,10 +85,22 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name.startsWith('emergencyContact.')) {
+      const field = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        emergencyContact: {
+          ...prev.emergencyContact,
+          [field]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -146,6 +163,32 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
       return;
     }
 
+    // Validate NIN requirements
+    if (!formData.nin || formData.nin.trim().length === 0) {
+      alert('Please provide your NIN (National Identification Number) to proceed with booking.');
+      document.querySelector('input[name="nin"]').focus();
+      return;
+    }
+
+    if (formData.nin.length !== 11) {
+      alert('NIN must be exactly 11 digits. Please check and enter your complete NIN.');
+      document.querySelector('input[name="nin"]').focus();
+      return;
+    }
+
+    if (!formData.ninImage) {
+      alert('Please upload an image of your NIN document to proceed with booking.');
+      document.getElementById('nin-image-upload').focus();
+      return;
+    }
+
+    // Validate emergency contact
+    if (!formData.emergencyContact.name || !formData.emergencyContact.phone || !formData.emergencyContact.relationship) {
+      alert('Please provide complete emergency contact information to proceed with booking.');
+      document.querySelector('input[name="emergencyContact.name"]').focus();
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -186,6 +229,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
         email: formData.email,
         nin: formData.nin
       }));
+      formDataToSend.append('emergencyContact', JSON.stringify(formData.emergencyContact));
 
       // Append NIN image if provided
       if (formData.ninImage) {
@@ -231,7 +275,9 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
     }
   };
 
-  const handleBookNow = () => {
+  const handleBookNow = (e) => {
+    e.preventDefault();
+    
     // Prevent submission if there's a date conflict
     if (dateConflict) {
       alert('The selected dates are not available. Please choose different dates.');
@@ -241,6 +287,32 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
     // Verify dates one more time before submission
     if (loadingAvailability) {
       alert('Please wait while we verify date availability.');
+      return;
+    }
+
+    // Validate NIN requirements
+    if (!formData.nin || formData.nin.trim().length === 0) {
+      alert('Please provide your NIN (National Identification Number) to proceed with booking.');
+      document.querySelector('input[name="nin"]').focus();
+      return;
+    }
+
+    if (formData.nin.length !== 11) {
+      alert('NIN must be exactly 11 digits. Please check and enter your complete NIN.');
+      document.querySelector('input[name="nin"]').focus();
+      return;
+    }
+
+    if (!formData.ninImage) {
+      alert('Please upload an image of your NIN document to proceed with booking.');
+      document.getElementById('nin-image-upload').focus();
+      return;
+    }
+
+    // Validate emergency contact
+    if (!formData.emergencyContact.name || !formData.emergencyContact.phone || !formData.emergencyContact.relationship) {
+      alert('Please provide complete emergency contact information to proceed with booking.');
+      document.querySelector('input[name="emergencyContact.name"]').focus();
       return;
     }
 
@@ -289,6 +361,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
         email: formData.email,
         nin: formData.nin
       }));
+      formDataToSend.append('emergencyContact', JSON.stringify(formData.emergencyContact));
 
       // Append NIN image if provided
       if (formData.ninImage) {
@@ -355,6 +428,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
         nin: formData.nin
       }));
       formDataToSend.append('paymentMethod', 'bank_transfer');
+      formDataToSend.append('emergencyContact', JSON.stringify(formData.emergencyContact));
 
       // Append NIN image if provided
       if (formData.ninImage) {
@@ -670,7 +744,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  NIN (National Identification Number)
+                  NIN (National Identification Number) *
                 </label>
                 <input
                   type="text"
@@ -678,18 +752,34 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                   value={formData.nin}
                   onChange={handleInputChange}
                   maxLength="11"
-                  className="w-full px-4 py-3 border text-gray-900 border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none placeholder-gray-500"
+                  required
+                  className={`w-full px-4 py-3 border text-gray-900 border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none placeholder-gray-500 ${
+                    formData.nin && formData.nin.length !== 11 ? 'border-red-300 bg-red-50' : ''
+                  }`}
                   placeholder="Enter your 11-digit NIN"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Your National Identification Number for verification
-                </p>
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-xs text-gray-500">
+                    Required: Your National Identification Number for verification
+                  </p>
+                  <p className={`text-xs ${
+                    formData.nin.length === 11 ? 'text-green-600' : 
+                    formData.nin.length > 0 ? 'text-orange-600' : 'text-gray-400'
+                  }`}>
+                    {formData.nin.length}/11
+                  </p>
+                </div>
+                {formData.nin && formData.nin.length > 0 && formData.nin.length !== 11 && (
+                  <p className="text-xs text-red-600 mt-1">
+                    NIN must be exactly 11 digits
+                  </p>
+                )}
               </div>
 
               {/* NIN Image Upload Section */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload NIN Document
+                  Upload NIN Document *
                 </label>
                 <div className="space-y-3">
                   {/* Upload Input */}
@@ -699,15 +789,20 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                       id="nin-image-upload"
                       accept="image/*"
                       onChange={handleImageUpload}
+                      required
                       className="hidden"
                     />
                     <label
                       htmlFor="nin-image-upload"
-                      className="w-full flex flex-col items-center justify-center py-4 px-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-primary hover:bg-purple-50 transition-colors"
+                      className={`w-full flex flex-col items-center justify-center py-4 px-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                        !formData.ninImage 
+                          ? 'border-gray-300 hover:border-purple-primary hover:bg-purple-50' 
+                          : 'border-green-300 bg-green-50'
+                      }`}
                     >
-                      <Upload size={24} className="text-gray-400 mb-2" />
-                      <span className="text-gray-600 text-sm text-center">
-                        Click to upload NIN document image
+                      <Upload size={24} className={`mb-2 ${!formData.ninImage ? 'text-gray-400' : 'text-green-600'}`} />
+                      <span className={`text-sm text-center ${!formData.ninImage ? 'text-gray-600' : 'text-green-700'}`}>
+                        {!formData.ninImage ? 'Click to upload NIN document image' : 'NIN document uploaded successfully'}
                       </span>
                       <span className="text-gray-400 text-xs mt-1">
                         PNG, JPG, JPEG up to 5MB
@@ -718,9 +813,9 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                   {/* Image Preview */}
                   {formData.ninImage && (
                     <div className="space-y-2">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <div className="flex items-center space-x-2 text-sm text-green-600">
                         <ImageIcon size={16} />
-                        <span>NIN document selected</span>
+                        <span>NIN document uploaded</span>
                       </div>
                       <div className="relative group w-32 h-32">
                         <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden">
@@ -746,6 +841,81 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                       </div>
                     </div>
                   )}
+                  
+                  {!formData.ninImage && (
+                    <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded p-2">
+                      <strong>Required:</strong> Please upload a clear image of your NIN document to proceed with booking.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Emergency Contact Section */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-purple-primary mb-4">Emergency Contact Information</h4>
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Emergency Contact Name *
+                    </label>
+                    <div className="relative">
+                      <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        name="emergencyContact.name"
+                        value={formData.emergencyContact.name}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full pl-10 pr-4 py-3 border text-gray-700 border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none"
+                        placeholder="Full name of emergency contact"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Emergency Contact Phone *
+                    </label>
+                    <div className="relative">
+                      <Phone size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="tel"
+                        name="emergencyContact.phone"
+                        value={formData.emergencyContact.phone}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full pl-10 pr-4 py-3 border text-gray-700 border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none"
+                        placeholder="+234 801 234 5678"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Relationship *
+                    </label>
+                    <select
+                      name="emergencyContact.relationship"
+                      value={formData.emergencyContact.relationship}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-3 border text-gray-700 border-gray-200 rounded-lg focus:border-purple-primary focus:outline-none appearance-none cursor-pointer"
+                    >
+                      <option value="">Select relationship</option>
+                      <option value="Parent">Parent</option>
+                      <option value="Sibling">Sibling</option>
+                      <option value="Spouse">Spouse</option>
+                      <option value="Partner">Partner</option>
+                      <option value="Child">Child</option>
+                      <option value="Friend">Friend</option>
+                      <option value="Colleague">Colleague</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div className="text-xs text-gray-500 bg-blue-50 border border-blue-200 rounded p-2">
+                    <strong>Note:</strong> This contact will be used only in case of emergencies during your stay. Please ensure the information is accurate and that this person is aware they may be contacted if needed.
+                  </div>
                 </div>
               </div>
 
@@ -772,9 +942,9 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
 
               <button
                 type="submit"
-                disabled={isSubmitting || dateConflict || loadingAvailability}
+                disabled={isSubmitting || dateConflict || loadingAvailability || !formData.nin || formData.nin.length !== 11 || !formData.ninImage || !formData.emergencyContact.name || !formData.emergencyContact.phone || !formData.emergencyContact.relationship}
                 className={`w-full py-3 px-6 rounded-lg font-medium transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                  dateConflict 
+                  dateConflict || !formData.nin || formData.nin.length !== 11 || !formData.ninImage || !formData.emergencyContact.name || !formData.emergencyContact.phone || !formData.emergencyContact.relationship
                     ? 'bg-gray-400 text-gray-600' 
                     : 'bg-purple-gradient text-white hover:bg-purple-secondary'
                 }`}
@@ -788,6 +958,12 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                   'Checking Availability...'
                 ) : dateConflict ? (
                   'Dates Not Available'
+                ) : !formData.nin || formData.nin.length !== 11 ? (
+                  'Please Complete NIN Details'
+                ) : !formData.ninImage ? (
+                  'Please Upload NIN Document'
+                ) : !formData.emergencyContact.name || !formData.emergencyContact.phone || !formData.emergencyContact.relationship ? (
+                  'Please Complete Emergency Contact'
                 ) : (
                   'Continue to Payment'
                 )}
@@ -796,6 +972,8 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
               <p className="text-xs text-gray-500 text-center mt-3">
                 {dateConflict 
                   ? 'Please select different dates to continue with your booking.'
+                  : !formData.nin || formData.nin.length !== 11 || !formData.ninImage || !formData.emergencyContact.name || !formData.emergencyContact.phone || !formData.emergencyContact.relationship
+                  ? 'All fields including NIN details and emergency contact information are required for booking verification.'
                   : 'By clicking "Continue to Payment", you will be redirected to choose your payment method.'
                 }
               </p>

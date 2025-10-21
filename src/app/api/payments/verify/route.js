@@ -105,11 +105,7 @@ export async function POST(request) {
                   transactionReference: transaction.reference
                 },
                 status: 'Confirmed',
-                emergencyContact: {
-                  name: 'Emergency Contact',
-                  phone: bookingRequest.guestDetails.phone,
-                  relationship: 'Self'
-                }
+                emergencyContact: bookingRequest.emergencyContact
               });
 
               await tenant.save({ session });

@@ -15,6 +15,7 @@ export async function POST(request) {
     const property = JSON.parse(formData.get('property'));
     const bookingDetails = JSON.parse(formData.get('bookingDetails'));
     const personalDetails = JSON.parse(formData.get('personalDetails'));
+    const emergencyContact = JSON.parse(formData.get('emergencyContact'));
     const paymentMethod = formData.get('paymentMethod') || 'online'; // Default to online payment
     const ninImage = formData.get('ninImage');
 
@@ -34,6 +35,14 @@ export async function POST(request) {
       return NextResponse.json({
         success: false,
         error: 'Please fill in all required fields'
+      }, { status: 400 });
+    }
+
+    // Validate emergency contact
+    if (!emergencyContact || !emergencyContact.name || !emergencyContact.phone || !emergencyContact.relationship) {
+      return NextResponse.json({
+        success: false,
+        error: 'Emergency contact information is required'
       }, { status: 400 });
     }
 
@@ -101,7 +110,7 @@ export async function POST(request) {
       }
     }
 
-    // Create booking request with payment method
+    // Create booking request with emergency contact
     const bookingRequest = new BookingRequest({
       property: property._id,
       propertyTitle: property.title,
@@ -113,6 +122,11 @@ export async function POST(request) {
         phone: personalDetails.phone,
         nin: personalDetails.nin || undefined,
         ninImage: ninImageData
+      },
+      emergencyContact: {
+        name: emergencyContact.name,
+        phone: emergencyContact.phone,
+        relationship: emergencyContact.relationship
       },
       bookingDetails: {
         checkInDate: checkIn,
