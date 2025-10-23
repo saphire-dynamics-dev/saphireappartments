@@ -989,6 +989,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
           onPaymentConfirmed={handleBankTransferConfirmed}
           totalAmount={calculateTotal()}
           propertyTitle={property.title}
+          property={property}
         />
       </div>
     </div>
