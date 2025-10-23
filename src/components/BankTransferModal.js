@@ -191,7 +191,7 @@ export default function BankTransferModal({ isOpen, onClose, onPaymentConfirmed,
                 <li>• Transfer the exact amount: ₦{totalAmount.toLocaleString()}</li>
                 <li>• Use your full name as the transfer reference</li>
                 <li>• Keep your transfer receipt for verification</li>
-                <li>• Click "Yes, I have paid" after completing the transfer</li>
+                <li>• Click &quot;Yes, I have paid&quot; after completing the transfer</li>
               </ul>
             </div>
 
@@ -201,7 +201,7 @@ export default function BankTransferModal({ isOpen, onClose, onPaymentConfirmed,
                 <MessageCircle size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-blue-700">
                   <p className="font-medium mb-1">Next Step:</p>
-                  <p>After confirming payment, you'll be redirected to WhatsApp to verify your transfer with our agent and receive your check-in details.</p>
+                  <p>After confirming payment, you&apos;ll be redirected to WhatsApp to verify your transfer with our agent and receive your check-in details.</p>
                 </div>
               </div>
             </div>
@@ -221,7 +221,7 @@ export default function BankTransferModal({ isOpen, onClose, onPaymentConfirmed,
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <h4 className="font-medium text-green-800 mb-2">After Payment:</h4>
               <ul className="text-sm text-green-700 space-y-1">
-                <li>• You'll receive confirmation within 2 hours</li>
+                <li>• You&apos;ll receive confirmation within 2 hours</li>
                 <li>• Check-in details will be sent to your phone</li>
                 <li>• Our agent will call you to arrange entry</li>
                 <li>• Keep your payment receipt until check-in</li>
