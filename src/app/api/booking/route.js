@@ -22,6 +22,7 @@ export async function POST(request) {
     const emergencyContact = JSON.parse(formData.get("emergencyContact"));
     const paymentMethod = formData.get("paymentMethod") || "online"; // Default to online payment
     const ninImage = formData.get("ninImage");
+    const discountCode = formData.get("discountCode") ? JSON.parse(formData.get("discountCode")) : null;
 
     // Validate required fields
     if (!property || !bookingDetails || !personalDetails) {
@@ -102,7 +103,8 @@ export async function POST(request) {
     const diffTime = checkOut - checkIn;
     const numberOfNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     const pricePerNight = parseInt(property.price.replace(/[^\d]/g, ""));
-    const totalAmount = numberOfNights * pricePerNight;
+    const baseAmount = numberOfNights * pricePerNight;
+    const totalAmount = discountCode ? discountCode.finalAmount : baseAmount;
 
     let ninImageData = null;
 
@@ -142,17 +144,68 @@ export async function POST(request) {
         numberOfNights,
         pricePerNight,
         totalAmount,
+        baseAmount: discountCode ? discountCode.originalAmount : baseAmount,
+        discountAmount: discountCode ? discountCode.discountAmount : 0,
+        discountCode: discountCode ? discountCode.code : null,
       },
+      // Discount Code Tracking
+      discountCodeUsed: !!discountCode,
+      discountCodeDetails: discountCode ? {
+        code: discountCode.code,
+        discountType: discountCode.discountType,
+        discountValue: discountCode.discountValue,
+        discountAmount: discountCode.discountAmount,
+        originalAmount: discountCode.originalAmount,
+        finalAmount: discountCode.finalAmount,
+        appliedAt: new Date()
+      } : undefined,
       source: "Website",
       // Add payment method and upload status to admin notes
       adminNotes: [
         paymentMethod === "bank_transfer" ? "Payment method: Bank Transfer - Awaiting confirmation" : undefined,
+        discountCode ? `Discount applied: ${discountCode.code} - Saved ₦${discountCode.discountAmount.toLocaleString()}` : undefined,
         !ninImageData && ninImage && ninImage.size > 0 ? "Warning: NIN image upload failed - manual follow-up required" : undefined
       ].filter(Boolean).join('. ') || undefined,
     });
 
     // Save booking request
     const savedBookingRequest = await bookingRequest.save();
+
+    // Mark discount code as used if applicable
+    if (discountCode && discountCode.code) {
+      try {
+        // Import and use the DiscountCode model directly
+        const DiscountCode = (await import('@/models/DiscountCode')).default;
+        
+        // Find and update the discount code
+        const discountCodeDoc = await DiscountCode.findOne({ 
+          code: discountCode.code.toUpperCase() 
+        });
+
+        if (discountCodeDoc && discountCodeDoc.isAvailable) {
+          await discountCodeDoc.useCode(
+            personalDetails.email, // Use email as user identifier
+            savedBookingRequest._id.toString()
+          );
+          console.log(`Discount code ${discountCode.code} marked as used successfully`);
+        } else {
+          console.warn(`Discount code ${discountCode.code} is no longer available`);
+          await savedBookingRequest.addCommunication(
+            "Note", 
+            `Warning: Discount code ${discountCode.code} was not available when marking as used`, 
+            "System"
+          );
+        }
+      } catch (discountError) {
+        console.error('Error marking discount code as used:', discountError);
+        // Add a note about the discount code issue
+        await savedBookingRequest.addCommunication(
+          "Note", 
+          `Warning: Failed to mark discount code ${discountCode.code} as used due to system error: ${discountError.message}`, 
+          "System"
+        );
+      }
+    }
 
     // Add initial communication log
     const paymentNote =
