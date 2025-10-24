@@ -1275,7 +1275,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                         <ol className="text-sm text-green-700 space-y-1">
                           <li>1. Complete your bank transfer payment</li>
                           <li>2. Message us on WhatsApp with your booking reference</li>
-                          <li>3. We'll confirm your payment and send check-in details</li>
+                          <li>3. We&apos;ll confirm your payment and send check-in details</li>
                         </ol>
                       </div>
                     </div>
@@ -1297,7 +1297,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                       onClick={() => setShowWhatsAppFallback(false)}
                       className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors"
                     >
-                      I'll Contact You Later
+                      I&apos;ll Contact You Later
                     </button>
                   </div>
 
@@ -1309,7 +1309,7 @@ export default function BookingModal({ isOpen, onClose, property, bookingDetails
                       </svg>
                       <div className="text-sm text-blue-700">
                         <p className="font-medium mb-1">Alternative Contact:</p>
-                        <p>If WhatsApp doesn't work, call us at +234 806 644 6777 or email saphireapartments2@gmail.com</p>
+                        <p>If WhatsApp doesn&apos;t work, call us at +234 806 644 6777 or email saphireapartments2@gmail.com</p>
                       </div>
                     </div>
                   </div>
