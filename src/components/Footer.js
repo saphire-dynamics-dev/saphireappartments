@@ -44,20 +44,22 @@ Best regards,
               We combine expertise with passion to deliver exceptional real estate experiences.
             </p>
             <div className="flex space-x-4">
-              <a 
-                href="#" 
+              {/* <a 
+                href="https://www.facebook.com/saphireapartments" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 bg-purple-darker rounded-full flex items-center justify-center hover:bg-purple-light hover:text-white cursor-pointer transition-colors group"
               >
                 <Facebook size={18} className="text-white group-hover:text-white" />
-              </a>
-              <a 
+              </a> */}
+              {/* <a 
                 href="#" 
                 className="w-10 h-10 bg-purple-darker rounded-full flex items-center justify-center hover:bg-purple-light hover:text-white cursor-pointer transition-colors group"
               >
                 <Linkedin size={18} className="text-white group-hover:text-white" />
-              </a>
+              </a> */}
               <a 
-                href="#" 
+                href="https://www.instagram.com/saphire.apartments/" 
                 className="w-10 h-10 bg-purple-darker rounded-full flex items-center justify-center hover:bg-purple-light hover:text-white cursor-pointer transition-colors group"
               >
                 <Instagram size={18} className="text-white group-hover:text-white" />
@@ -128,7 +130,7 @@ Best regards,
 
         <div className="border-t border-purple-lighter mt-8 md:mt-12 pt-6 md:pt-8 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-gray-200 text-xs md:text-sm">
-            ©2025 Saphire Apartments. All rights reserved.
+            ©{new Date().getFullYear()} Saphire Apartments. All rights reserved.
           </p>
           <div className="flex space-x-4 md:space-x-6 mt-4 sm:mt-0">
             <a href="#" className="text-gray-200 text-xs md:text-sm hover:text-purple-lighter transition-colors">Privacy Policy</a>
