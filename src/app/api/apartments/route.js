@@ -1,15 +1,19 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/mongodb';
 import Apartment from '../../../models/Apartment';
+import { adminUnauthorizedResponse, requireAdmin } from '@/lib/security';
 
-export async function GET() {
+export async function GET(request) {
   try {
     await connectDB();
     
-    const apartments = await Apartment.find()
+    const limit = Math.min(Math.max(Number(request.nextUrl.searchParams.get('limit')) || 10, 1), 100);
+    const status = request.nextUrl.searchParams.get('status');
+    const filter = status && ['Available', 'Occupied', 'Maintenance'].includes(status) ? { status } : {};
+    const apartments = await Apartment.find(filter)
       .select('title location price bedrooms bathrooms area type description images')
       .sort({ createdAt: -1 })
-      .limit(10); // Limit to 10 for featured properties
+      .limit(limit);
     
     return NextResponse.json({
       success: true,
@@ -29,6 +33,7 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    if (!requireAdmin(request)) return adminUnauthorizedResponse();
     await connectDB();
     
     const body = await request.json();

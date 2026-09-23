@@ -1,4 +1,10 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Saphire Apartments is a Next.js booking site for apartment listings, viewing requests, maintenance requests, and Paystack payments.
+
+## Configuration
+
+Copy `.env.example` to `.env.local` and set every required value. `ADMIN_API_KEY` is required for apartment create, update, and delete API calls. Send it only from a separate authenticated admin backend or dashboard as the `x-admin-api-key` header; never expose it in browser code.
+
+Booking totals and coupon discounts are deliberately recalculated server-side from the stored apartment and discount code. Do not change this behaviour by trusting values posted from the client.
 
 ## Getting Started
 

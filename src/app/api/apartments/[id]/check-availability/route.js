@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-import Tenant from '@/models/Tenant';
+import { getStay, hasBookingConflict } from '@/lib/booking';
 
 export async function POST(request, { params }) {
   try {
@@ -30,18 +30,11 @@ export async function POST(request, { params }) {
       }, { status: 400 });
     }
 
-    // Use the Tenant model's checkDateConflict method
-    const conflictingBooking = await Tenant.checkDateConflict(
-      apartmentId,
-      checkInDate,
-      checkOutDate
-    );
-
-    if (conflictingBooking) {
+    const { checkIn, checkOut } = getStay(checkInDate, checkOutDate);
+    if (await hasBookingConflict(apartmentId, checkIn, checkOut)) {
       return NextResponse.json({
         success: true,
-        available: false,
-        conflictDetails: `${conflictingBooking.fullName} from ${new Date(conflictingBooking.stayDetails.checkInDate).toLocaleDateString()} to ${new Date(conflictingBooking.stayDetails.checkOutDate).toLocaleDateString()}`
+        available: false
       });
     }
 

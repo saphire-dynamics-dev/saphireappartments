@@ -46,6 +46,16 @@ export async function POST(request) {
     const paystackResponse = await PaystackService.verifyTransaction(reference);
 
     if (paystackResponse.status && paystackResponse.data.status === 'success') {
+      // Do not accept a successful gateway response for a different amount,
+      // currency, or reference.
+      if (
+        paystackResponse.data.reference !== transaction.paystackReference ||
+        paystackResponse.data.amount !== transaction.amount ||
+        paystackResponse.data.currency !== transaction.currency
+      ) {
+        console.error('Paystack verification mismatch', { transaction: transaction._id });
+        return NextResponse.json({ success: false, error: 'Payment details did not match this booking' }, { status: 400 });
+      }
       // Use a transaction to ensure atomicity
       const session = await mongoose.startSession();
       

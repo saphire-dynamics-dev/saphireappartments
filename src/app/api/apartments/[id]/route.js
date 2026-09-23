@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Apartment from '@/models/Apartment';
+import { adminUnauthorizedResponse, requireAdmin } from '@/lib/security';
 
 export async function GET(request, { params }) {
   try {
@@ -8,7 +9,8 @@ export async function GET(request, { params }) {
     
     // Await params before accessing properties
     const resolvedParams = await params;
-    const apartment = await Apartment.findById(resolvedParams.id);
+    const apartment = await Apartment.findById(resolvedParams.id)
+      .select('title location price bedrooms bathrooms area type description features images amenities rules contact status');
     
     if (!apartment) {
       return NextResponse.json(
@@ -33,11 +35,13 @@ export async function GET(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
+    if (!requireAdmin(request)) return adminUnauthorizedResponse();
     await connectDB();
     
     const body = await request.json();
+    const resolvedParams = await params;
     const apartment = await Apartment.findByIdAndUpdate(
-      params.id,
+      resolvedParams.id,
       body,
       { new: true, runValidators: true }
     );
@@ -67,9 +71,11 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
+    if (!requireAdmin(request)) return adminUnauthorizedResponse();
     await connectDB();
     
-    const apartment = await Apartment.findByIdAndDelete(params.id);
+    const resolvedParams = await params;
+    const apartment = await Apartment.findByIdAndDelete(resolvedParams.id);
     
     if (!apartment) {
       return NextResponse.json(

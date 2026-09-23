@@ -29,6 +29,7 @@ export default function Navbar() {
               <Link href="/" className="text-purple-primary font-medium hover:text-purple-secondary transition-colors">Home</Link>
               <Link href="/properties" className="hover:text-purple-primary transition-colors">Properties</Link>
               <Link href="/about" className="hover:text-purple-primary transition-colors">About Us</Link>
+              <Link href="/feedback" className="hover:text-purple-primary transition-colors">Feedback</Link>
             </div>
           </div>
           
@@ -63,6 +64,7 @@ export default function Navbar() {
               <Link href="/" className="block py-2 text-purple-primary font-medium">Home</Link>
               <Link href="/properties" className="block py-2 text-gray-600 hover:text-purple-primary">Properties</Link>
               <Link href="/about" className="block py-2 text-gray-600 hover:text-purple-primary">About Us</Link>
+              <Link href="/feedback" className="block py-2 text-gray-600 hover:text-purple-primary">Feedback</Link>
               <button 
                 onClick={() => {
                   setIsContactModalOpen(true);
