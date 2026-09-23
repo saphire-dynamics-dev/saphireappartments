@@ -192,7 +192,7 @@ export default function Home() {
                 {/* Copyright text */}
                 <div className="hidden lg:block lg:mt-16">
                   <p className="text-xs text-white/60 animate-fade-in-up animation-delay-1000">
-                    ©2024 SAPHIRE APARTMENTS ALL RIGHT RESERVED
+                     ©{new Date().getFullYear()} SAPHIRE APARTMENTS ALL RIGHT RESERVED
                   </p>
                 </div>
               </div>
