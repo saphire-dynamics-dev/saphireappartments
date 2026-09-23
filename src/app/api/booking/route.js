@@ -1,296 +1,97 @@
-import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
-import BookingRequest from "@/models/BookingRequest";
-import Apartment from "@/models/Apartment";
-import cloudinary from "@/lib/cloudinary";
-import {
-  sendBookingConfirmationEmail,
-  sendBookingNotificationEmail,
-} from "@/lib/email";
+import { NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import Apartment from '@/models/Apartment';
+import BookingRequest from '@/models/BookingRequest';
+import DiscountCode from '@/models/DiscountCode';
 import { uploadNinImage } from '@/lib/imageUpload';
+import { sendBookingConfirmationEmail, sendBookingNotificationEmail } from '@/lib/email';
+import { calculateDiscount, getStay, hasBookingConflict, parseApartmentNightlyPrice } from '@/lib/booking';
+
+const badRequest = (error, status = 400) => NextResponse.json({ success: false, error }, { status });
 
 export async function POST(request) {
   try {
     await connectDB();
-
     const formData = await request.formData();
+    const submittedProperty = JSON.parse(formData.get('property'));
+    const bookingDetails = JSON.parse(formData.get('bookingDetails'));
+    const personalDetails = JSON.parse(formData.get('personalDetails'));
+    const emergencyContact = JSON.parse(formData.get('emergencyContact'));
+    const submittedDiscount = formData.get('discountCode') ? JSON.parse(formData.get('discountCode')) : null;
+    const paymentMethod = formData.get('paymentMethod') === 'bank_transfer' ? 'bank_transfer' : 'online';
+    const ninImage = formData.get('ninImage');
+    const { checkInDate, checkOutDate, guests } = bookingDetails || {};
+    const { firstName, lastName, email, phone } = personalDetails || {};
 
-    // Extract form data
-    const property = JSON.parse(formData.get("property"));
-    const bookingDetails = JSON.parse(formData.get("bookingDetails"));
-    const personalDetails = JSON.parse(formData.get("personalDetails"));
-    const emergencyContact = JSON.parse(formData.get("emergencyContact"));
-    const paymentMethod = formData.get("paymentMethod") || "online"; // Default to online payment
-    const ninImage = formData.get("ninImage");
-    const discountCode = formData.get("discountCode") ? JSON.parse(formData.get("discountCode")) : null;
-
-    // Validate required fields
-    if (!property || !bookingDetails || !personalDetails) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Missing required booking information",
-        },
-        { status: 400 }
-      );
+    if (!submittedProperty?._id || !checkInDate || !checkOutDate || !firstName || !lastName || !email || !phone) {
+      return badRequest('Please fill in all required booking information');
     }
+    if (!emergencyContact?.name || !emergencyContact?.phone || !emergencyContact?.relationship) return badRequest('Emergency contact information is required');
+    if (!Number.isInteger(Number(guests)) || Number(guests) < 1 || Number(guests) > 10) return badRequest('Number of guests must be between 1 and 10');
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return badRequest('Please provide a valid email address');
 
-    // Validate booking details
-    const { checkInDate, checkOutDate, guests } = bookingDetails;
-    const { firstName, lastName, email, phone } = personalDetails;
+    // The database, never the browser, is the source of truth for rates and availability.
+    const property = await Apartment.findById(submittedProperty._id);
+    if (!property || property.status !== 'Available') return badRequest('This apartment is not available for booking');
+    const { checkIn, checkOut, numberOfNights } = getStay(checkInDate, checkOutDate);
+    if (await hasBookingConflict(property._id, checkIn, checkOut)) return badRequest('Those dates are no longer available', 409);
 
-    if (
-      !checkInDate ||
-      !checkOutDate ||
-      !guests ||
-      !firstName ||
-      !lastName ||
-      !email ||
-      !phone
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Please fill in all required fields",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Validate emergency contact
-    if (
-      !emergencyContact ||
-      !emergencyContact.name ||
-      !emergencyContact.phone ||
-      !emergencyContact.relationship
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Emergency contact information is required",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Validate dates
-    const checkIn = new Date(checkInDate);
-    const checkOut = new Date(checkOutDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (checkIn < today) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Check-in date cannot be in the past",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (checkOut <= checkIn) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Check-out date must be after check-in date",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Calculate booking details
-    const diffTime = checkOut - checkIn;
-    const numberOfNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const pricePerNight = parseInt(property.price.replace(/[^\d]/g, ""));
+    const pricePerNight = parseApartmentNightlyPrice(property.price);
     const baseAmount = numberOfNights * pricePerNight;
-    const totalAmount = discountCode ? discountCode.finalAmount : baseAmount;
+    const discountCodeDoc = submittedDiscount?.code ? await DiscountCode.findOne({ code: String(submittedDiscount.code).trim().toUpperCase() }) : null;
+    if (submittedDiscount?.code && !discountCodeDoc) return badRequest('Invalid discount code');
+    const customerId = email.trim().toLowerCase();
+    if (discountCodeDoc?.usedBy.some((usage) => usage.userId === customerId)) return badRequest('You have already used this discount code');
+    const discount = calculateDiscount(discountCodeDoc, baseAmount, numberOfNights);
+    const totalAmount = discount?.finalAmount ?? baseAmount;
 
     let ninImageData = null;
+    if (ninImage?.size > 0) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(ninImage.type) || ninImage.size > 5 * 1024 * 1024) return badRequest('NIN image must be a JPG, PNG, or WebP file smaller than 5 MB');
+      try { ninImageData = await uploadNinImage(ninImage, `temp-${Date.now()}`); }
+      catch (error) { console.error('NIN image upload failed:', error.message); }
+    }
 
-    // Upload NIN image with fallback
-    if (ninImage && ninImage.size > 0) {
-      try {
-        ninImageData = await uploadNinImage(ninImage, 'temp-' + Date.now());
-        console.log("NIN image uploaded successfully:", ninImageData.publicId);
-      } catch (uploadError) {
-        console.error("All image upload methods failed:", uploadError.message);
-        // Continue without image but note the failure
+    const bookingRequest = await BookingRequest.create({
+      property: property._id, propertyTitle: property.title, propertyLocation: property.location,
+      guestDetails: { firstName, lastName, email: customerId, phone, nin: personalDetails.nin || undefined, ninImage: ninImageData },
+      emergencyContact,
+      bookingDetails: { checkInDate: checkIn, checkOutDate: checkOut, numberOfGuests: Number(guests), numberOfNights, pricePerNight, totalAmount, baseAmount, discountAmount: discount?.discountAmount ?? 0, discountCode: discountCodeDoc?.code },
+      discountCodeUsed: Boolean(discountCodeDoc),
+      discountCodeDetails: discountCodeDoc ? { code: discountCodeDoc.code, discountType: discountCodeDoc.discountType, discountValue: discountCodeDoc.discountValue, discountAmount: discount.discountAmount, originalAmount: baseAmount, finalAmount: totalAmount, appliedAt: new Date() } : undefined,
+      source: 'Website',
+      adminNotes: [paymentMethod === 'bank_transfer' ? 'Payment method: Bank Transfer - Awaiting confirmation' : undefined, discountCodeDoc ? `Discount applied: ${discountCodeDoc.code} - Saved ₦${discount.discountAmount.toLocaleString()}` : undefined, ninImage?.size > 0 && !ninImageData ? 'Warning: NIN image upload failed - manual follow-up required' : undefined].filter(Boolean).join('. ') || undefined,
+    });
+
+    // A conditional update prevents parallel requests from exhausting a code twice.
+    if (discountCodeDoc) {
+      const redeemed = await DiscountCode.findOneAndUpdate(
+        { _id: discountCodeDoc._id, isActive: true, expiryDate: { $gt: new Date() }, $expr: { $lt: ['$currentUsageCount', '$maxUsageCount'] }, 'usedBy.userId': { $ne: customerId } },
+        { $inc: { currentUsageCount: 1 }, $push: { usedBy: { userId: customerId, orderId: bookingRequest._id.toString() } } }, { new: true }
+      );
+      if (!redeemed) {
+        await BookingRequest.findByIdAndDelete(bookingRequest._id);
+        return badRequest('This discount code is no longer available', 409);
       }
     }
 
-    // Create booking request with emergency contact
-    const bookingRequest = new BookingRequest({
-      property: property._id,
-      propertyTitle: property.title,
-      propertyLocation: property.location,
-      guestDetails: {
-        firstName: personalDetails.firstName,
-        lastName: personalDetails.lastName,
-        email: personalDetails.email,
-        phone: personalDetails.phone,
-        nin: personalDetails.nin || undefined,
-        ninImage: ninImageData,
-      },
-      emergencyContact: {
-        name: emergencyContact.name,
-        phone: emergencyContact.phone,
-        relationship: emergencyContact.relationship,
-      },
-      bookingDetails: {
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
-        numberOfGuests: guests,
-        numberOfNights,
-        pricePerNight,
-        totalAmount,
-        baseAmount: discountCode ? discountCode.originalAmount : baseAmount,
-        discountAmount: discountCode ? discountCode.discountAmount : 0,
-        discountCode: discountCode ? discountCode.code : null,
-      },
-      // Discount Code Tracking
-      discountCodeUsed: !!discountCode,
-      discountCodeDetails: discountCode ? {
-        code: discountCode.code,
-        discountType: discountCode.discountType,
-        discountValue: discountCode.discountValue,
-        discountAmount: discountCode.discountAmount,
-        originalAmount: discountCode.originalAmount,
-        finalAmount: discountCode.finalAmount,
-        appliedAt: new Date()
-      } : undefined,
-      source: "Website",
-      // Add payment method and upload status to admin notes
-      adminNotes: [
-        paymentMethod === "bank_transfer" ? "Payment method: Bank Transfer - Awaiting confirmation" : undefined,
-        discountCode ? `Discount applied: ${discountCode.code} - Saved ₦${discountCode.discountAmount.toLocaleString()}` : undefined,
-        !ninImageData && ninImage && ninImage.size > 0 ? "Warning: NIN image upload failed - manual follow-up required" : undefined
-      ].filter(Boolean).join('. ') || undefined,
-    });
-
-    // Save booking request
-    const savedBookingRequest = await bookingRequest.save();
-
-    // Mark discount code as used if applicable
-    if (discountCode && discountCode.code) {
-      try {
-        // Import and use the DiscountCode model directly
-        const DiscountCode = (await import('@/models/DiscountCode')).default;
-        
-        // Find and update the discount code
-        const discountCodeDoc = await DiscountCode.findOne({ 
-          code: discountCode.code.toUpperCase() 
-        });
-
-        if (discountCodeDoc && discountCodeDoc.isAvailable) {
-          await discountCodeDoc.useCode(
-            personalDetails.email, // Use email as user identifier
-            savedBookingRequest._id.toString()
-          );
-          console.log(`Discount code ${discountCode.code} marked as used successfully`);
-        } else {
-          console.warn(`Discount code ${discountCode.code} is no longer available`);
-          await savedBookingRequest.addCommunication(
-            "Note", 
-            `Warning: Discount code ${discountCode.code} was not available when marking as used`, 
-            "System"
-          );
-        }
-      } catch (discountError) {
-        console.error('Error marking discount code as used:', discountError);
-        // Add a note about the discount code issue
-        await savedBookingRequest.addCommunication(
-          "Note", 
-          `Warning: Failed to mark discount code ${discountCode.code} as used due to system error: ${discountError.message}`, 
-          "System"
-        );
-      }
-    }
-
-    // Add initial communication log
-    const paymentNote =
-      paymentMethod === "bank_transfer"
-        ? "Booking request submitted via website with bank transfer payment - awaiting payment confirmation"
-        : "Booking request submitted via website";
-
-    await savedBookingRequest.addCommunication("Note", paymentNote, "System");
-
-    // Send emails based on payment method
+    bookingRequest.addCommunication('Note', paymentMethod === 'bank_transfer' ? 'Booking submitted with bank transfer payment - awaiting confirmation' : 'Booking request submitted via website', 'System');
+    await bookingRequest.save();
+    const emailBookingDetails = { checkInDate, checkOutDate, guests: Number(guests), numberOfNights, totalAmount };
     try {
-      // Regular booking confirmation email
-      await sendBookingConfirmationEmail({
-        guestEmail: email,
-        guestName: `${firstName} ${lastName}`,
-        property,
-        bookingDetails: {
-          checkInDate,
-          checkOutDate,
-          guests,
-          numberOfNights,
-          totalAmount,
-        },
-        bookingId: savedBookingRequest._id,
-      });
-
-      // Log email sent
-      await savedBookingRequest.addCommunication(
-        "Email",
-        paymentMethod === "bank_transfer"
-          ? "Bank transfer booking notification email sent"
-          : "Booking confirmation email sent to guest",
-        "System"
-      );
-    } catch (emailError) {
-      console.error("Error sending confirmation email:", emailError);
-    }
-
-    // Send notification email to admin
+      await sendBookingConfirmationEmail({ guestEmail: customerId, guestName: `${firstName} ${lastName}`, property, bookingDetails: emailBookingDetails, bookingId: bookingRequest._id });
+      bookingRequest.addCommunication('Email', 'Booking confirmation email sent to guest', 'System');
+    } catch (error) { console.error('Booking confirmation email failed:', error); }
     try {
-      await sendBookingNotificationEmail({
-        property,
-        guestDetails: personalDetails,
-        bookingDetails: {
-          checkInDate,
-          checkOutDate,
-          guests,
-          numberOfNights,
-          totalAmount,
-        },
-        bookingId: savedBookingRequest._id,
-      });
+      await sendBookingNotificationEmail({ property, guestDetails: personalDetails, bookingDetails: emailBookingDetails, bookingId: bookingRequest._id });
+      bookingRequest.addCommunication('Email', 'Booking notification email sent to admin', 'System');
+    } catch (error) { console.error('Booking notification email failed:', error); }
+    await bookingRequest.save();
 
-      // Log admin notification
-      await savedBookingRequest.addCommunication(
-        "Email",
-        "Booking notification email sent to admin",
-        "System"
-      );
-    } catch (emailError) {
-      console.error("Error sending admin notification email:", emailError);
-    }
-
-    return NextResponse.json({
-      success: true,
-      message:
-        paymentMethod === "bank_transfer"
-          ? "Booking request submitted successfully. Please confirm your payment on WhatsApp."
-          : "Booking request submitted successfully",
-      data: {
-        bookingId: savedBookingRequest._id,
-        status: savedBookingRequest.status,
-        totalAmount,
-        ninImageUploaded: !!ninImageData,
-        paymentMethod: paymentMethod,
-      },
-    });
+    return NextResponse.json({ success: true, message: paymentMethod === 'bank_transfer' ? 'Booking request submitted successfully. Please confirm your payment on WhatsApp.' : 'Booking request submitted successfully', data: { bookingId: bookingRequest._id, status: bookingRequest.status, totalAmount, ninImageUploaded: Boolean(ninImageData), paymentMethod } });
   } catch (error) {
-    console.error("Booking submission error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to submit booking request",
-      },
-      { status: 500 }
-    );
+    console.error('Booking submission error:', error);
+    const isClientError = ['Please provide valid', 'Check-in', 'Check-out', 'This discount', 'This apartment'].some((prefix) => error.message?.startsWith(prefix));
+    return badRequest(isClientError ? error.message : 'Failed to submit booking request', isClientError ? 400 : 500);
   }
 }

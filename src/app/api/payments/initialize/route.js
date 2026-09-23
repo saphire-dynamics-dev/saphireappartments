@@ -17,6 +17,9 @@ export async function POST(request) {
         error: 'Booking request ID is required'
       }, { status: 400 });
     }
+    if (paymentType !== 'booking_payment') {
+      return NextResponse.json({ success: false, error: 'Invalid payment type' }, { status: 400 });
+    }
 
     // Get booking request
     const bookingRequest = await BookingRequest.findById(bookingRequestId);
@@ -25,6 +28,9 @@ export async function POST(request) {
         success: false,
         error: 'Booking request not found'
       }, { status: 404 });
+    }
+    if (bookingRequest.status !== 'Pending') {
+      return NextResponse.json({ success: false, error: 'This booking can no longer be paid for' }, { status: 400 });
     }
 
     // Check if payment already exists
@@ -56,7 +62,10 @@ export async function POST(request) {
     const reference = Transaction.generateReference();
     
     // Calculate amount (Paystack expects amount in kobo for NGN)
-    const amountInKobo = bookingRequest.bookingDetails.totalAmount * 100;
+    const amountInKobo = Math.round(bookingRequest.bookingDetails.totalAmount * 100);
+    if (!Number.isSafeInteger(amountInKobo) || amountInKobo < 100) {
+      return NextResponse.json({ success: false, error: 'Booking has an invalid payment amount' }, { status: 400 });
+    }
 
     // Prepare Paystack payload
     const paystackPayload = {
